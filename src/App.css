@@ -1,0 +1,108 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.app-container {
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.app h1 {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #667eea;
+}
+
+.description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.title-input {
+  padding: 15px;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.title-input:focus {
+  border-color: #667eea;
+}
+
+.create-button {
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.1s;
+}
+
+.create-button:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.create-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.feature {
+  text-align: center;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.feature h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.feature p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    padding: 30px 20px;
+  }
+
+  .app h1 {
+    font-size: 2rem;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+}
