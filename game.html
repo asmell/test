@@ -401,11 +401,40 @@
     setTimeout(()=>f.remove(), 800);
   }
 
+  function playSE(ok){
+    if(muted) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!actx){ actx = new AC(); bgmGain = actx.createGain(); bgmGain.gain.value=0.35; bgmGain.connect(actx.destination); }
+    if(actx.state==='suspended') actx.resume();
+    const t = actx.currentTime;
+    if(ok){
+      // 正解：明るい2音（ド→ミ）
+      [[523,0],[659,0.1]].forEach(([freq,delay])=>{
+        const o=actx.createOscillator(), g=actx.createGain();
+        o.type='square'; o.frequency.value=freq;
+        o.connect(g); g.connect(actx.destination);
+        g.gain.setValueAtTime(0.18, t+delay);
+        g.gain.exponentialRampToValueAtTime(0.001, t+delay+0.18);
+        o.start(t+delay); o.stop(t+delay+0.2);
+      });
+    } else {
+      // 不正解：低い下降2音（ソ→ミ♭）
+      [[392,0],[311,0.12]].forEach(([freq,delay])=>{
+        const o=actx.createOscillator(), g=actx.createGain();
+        o.type='sawtooth'; o.frequency.value=freq;
+        o.connect(g); g.connect(actx.destination);
+        g.gain.setValueAtTime(0.15, t+delay);
+        g.gain.exponentialRampToValueAtTime(0.001, t+delay+0.18);
+        o.start(t+delay); o.stop(t+delay+0.2);
+      });
+    }
+  }
+
   function addScore(d, x, y){
     score = Math.max(0, score + d);
     scoreEl.textContent = score;
-    if(d>0) flash(x,y,'+1','#2db94f');
-    else    flash(x,y,'-1','#e23b3b');
+    if(d>0){ flash(x,y,'+1','#2db94f'); playSE(true); }
+    else    { flash(x,y,'-1','#e23b3b'); playSE(false); }
     if(score>=TARGET) win();
   }
 
