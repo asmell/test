@@ -99,6 +99,13 @@
     background:var(--purple); color:#fff; font-weight:900; font-size:13px;
     padding:6px 14px; border-radius:999px; box-shadow:0 4px 0 #b03a4c; white-space:nowrap;
   }
+  #muteBtn{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:21;
+    width:38px; height:38px; border-radius:50%; border:none; cursor:pointer;
+    background:#fff; box-shadow:0 4px 0 rgba(0,0,0,.12); font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #muteBtn:active{ transform:translateX(-50%) translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.12); }
 
   /* 落ちてくる単語 */
   .word{
@@ -219,6 +226,7 @@
       <div class="pill time" id="timePill">⏱ <span id="time">2:00</span></div>
     </div>
     <div id="goalText">お題：化学の「単体」を拾え！</div>
+    <button id="muteBtn" title="BGM オン／オフ">🔊</button>
 
     <div id="player">
       <div class="face" id="face">🧒</div>
@@ -343,6 +351,7 @@
     lastTime = performance.now();
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
+    startBGM();
   }
 
   function positionPlayer(){
@@ -463,12 +472,14 @@
     if(state!=='playing') return;
     state='win';
     cancelAnimationFrame(rafId);
+    stopBGM();
     setTimeout(()=>show('winScreen'), 350);
   }
   function lose(){
     if(state==='lose') return;
     state='lose';
     cancelAnimationFrame(rafId);
+    stopBGM();
     show('loseScreen');
   }
 
@@ -513,6 +524,65 @@
   });
   window.addEventListener('keyup',(e)=>{
     if((e.key==='ArrowLeft'&&moveDir===-1)||(e.key==='ArrowRight'&&moveDir===1)) moveDir=0;
+  });
+
+  // ===== BGM（Web Audio APIで生成：ポップな8bit風ループ） =====
+  let actx = null, bgmGain = null, bgmTimer = null;
+  let muted = false, nextNoteTime = 0, noteIndex = 0;
+  const BEAT = 0.16;                 // 1ステップ（8分音符）の秒数
+  // メロディ（MIDIノート番号 / 0=休符）I–IV–ii–V のあかるい進行
+  const MELODY = [72,76,79,76, 81,79,76,79, 77,74,77,79, 76,72,74,72];
+  const BASS   = [48,53,50,55];      // 4ステップごとのベース（C F D G）
+  const muteBtn = document.getElementById('muteBtn');
+
+  function midi(n){ return 440*Math.pow(2,(n-69)/12); }
+
+  function playNote(time, freq, dur, type, vol){
+    if(!freq || !actx) return;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = freq;
+    o.connect(g); g.connect(bgmGain);
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.linearRampToValueAtTime(vol, time+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
+    o.start(time); o.stop(time+dur+0.03);
+  }
+
+  function scheduler(){
+    if(!actx) return;
+    while(nextNoteTime < actx.currentTime + 0.12){
+      const step = noteIndex % MELODY.length;
+      playNote(nextNoteTime, midi(MELODY[step]), BEAT*0.9, 'square', 0.10);
+      if(step % 4 === 0){
+        const b = BASS[Math.floor(step/4) % BASS.length];
+        playNote(nextNoteTime, midi(b), BEAT*3.6, 'triangle', 0.16);
+      }
+      nextNoteTime += BEAT;
+      noteIndex++;
+    }
+  }
+
+  function startBGM(){
+    if(muted) return;
+    if(!actx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      actx = new AC();
+      bgmGain = actx.createGain();
+      bgmGain.gain.value = 0.35;
+      bgmGain.connect(actx.destination);
+    }
+    if(actx.state === 'suspended') actx.resume();
+    noteIndex = 0; nextNoteTime = actx.currentTime + 0.06;
+    clearInterval(bgmTimer);
+    bgmTimer = setInterval(scheduler, 25);
+  }
+  function stopBGM(){ clearInterval(bgmTimer); bgmTimer = null; }
+
+  muteBtn.addEventListener('click', ()=>{
+    muted = !muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+    if(muted) stopBGM();
+    else if(state === 'playing') startBGM();
   });
 
   // ===== ボタン =====
