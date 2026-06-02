@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>脱出ゲーム</title>
+<style>
+  :root{
+    --pink:#ff5b6e; --blue:#ff7a59; --yellow:#ffb03d; --green:#ff8a5c;
+    --purple:#e0566b; --ink:#4a2e2e;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; height:100%; overflow:hidden; }
+  body{
+    font-family:"Hiragino Maru Gothic ProN","Rounded Mplus 1c","Segoe UI",system-ui,sans-serif;
+    background:#2a1414; color:var(--ink); user-select:none; -webkit-user-select:none; touch-action:none;
+  }
+  #app{
+    position:relative; width:100%; height:100%; max-width:560px; margin:0 auto;
+    overflow:hidden; background:#ffe1e1;
+  }
+
+  /* ===== 共通画面 ===== */
+  .screen{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; gap:18px;
+    padding:24px; z-index:30;
+  }
+  .hidden{ display:none !important; }
+
+  .pop-title{
+    font-size:13vw; font-weight:900; color:#fff; line-height:1.1;
+    text-shadow:0 4px 0 var(--pink),0 8px 0 #c5384a,0 12px 14px rgba(0,0,0,.3);
+    letter-spacing:2px;
+  }
+  @media(min-width:480px){ .pop-title{ font-size:64px; } }
+
+  .bubble{
+    background:#fff; border-radius:22px; padding:18px 22px; max-width:320px;
+    box-shadow:0 8px 0 rgba(0,0,0,.12); font-size:16px; line-height:1.7; font-weight:700;
+  }
+  .btn{
+    font-family:inherit; font-weight:900; font-size:22px; color:#fff; cursor:pointer;
+    border:none; border-radius:999px; padding:16px 40px;
+    background:linear-gradient(180deg,#ffc94d,var(--yellow));
+    color:#7a4400; box-shadow:0 6px 0 #d97a00; transition:transform .08s, box-shadow .08s;
+  }
+  .btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #d97a00; }
+  .btn.blue{ background:linear-gradient(180deg,#ff9b7a,var(--blue)); color:#5e1c06; box-shadow:0 6px 0 #c9421c; }
+  .btn.blue:active{ box-shadow:0 2px 0 #c9421c; }
+
+  /* タイトル背景 */
+  #titleScreen{ background:radial-gradient(circle at 50% 30%,#ff8a8a,#d63a3a); }
+  .floaty{ position:absolute; font-size:34px; opacity:.5; animation:float 6s ease-in-out infinite; }
+  @keyframes float{ 0%,100%{ transform:translateY(0) rotate(-6deg); } 50%{ transform:translateY(-22px) rotate(6deg); } }
+
+  /* ===== 教室（ゲーム画面） ===== */
+  #gameScreen{ position:absolute; inset:0; z-index:10; }
+  #classroom{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg,#ffe0d0 0%,#ffd0bc 62%, #f0b59a 62%, #e0a486 100%);
+  }
+  /* 黒板 */
+  .board{
+    position:absolute; top:6%; left:6%; right:6%; height:26%;
+    background:linear-gradient(180deg,#6b2f2f,#542424); border:10px solid #c9905a;
+    border-radius:8px; box-shadow:0 6px 0 #a06e3c, inset 0 0 30px rgba(0,0,0,.25);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; color:#ffeaea;
+  }
+  .board .chalk{ font-weight:900; font-size:5.4vw; text-shadow:0 1px 0 rgba(0,0,0,.2); }
+  @media(min-width:480px){ .board .chalk{ font-size:26px; } }
+  .board .chalk small{ display:block; font-size:3.4vw; font-weight:700; opacity:.92; margin-top:4px; }
+  @media(min-width:480px){ .board .chalk small{ font-size:15px; } }
+  /* 窓 */
+  .window{
+    position:absolute; top:9%; height:18%; width:14%;
+    background:linear-gradient(180deg,#ffd6cf,#ffb0a0); border:6px solid #fff;
+    border-radius:6px; box-shadow:0 4px 0 rgba(0,0,0,.12);
+  }
+  .window::after{ content:""; position:absolute; inset:0; border-left:3px solid #fff; left:50%; }
+  .floorline{ position:absolute; top:62%; left:0; right:0; height:4px; background:#b9685a; }
+
+  /* HUD */
+  #hud{
+    position:absolute; top:0; left:0; right:0; z-index:20;
+    display:flex; justify-content:space-between; align-items:flex-start; padding:10px 12px;
+    pointer-events:none;
+  }
+  .pill{
+    background:#fff; border-radius:999px; padding:8px 14px; font-weight:900; font-size:16px;
+    box-shadow:0 4px 0 rgba(0,0,0,.12); display:flex; align-items:center; gap:6px;
+  }
+  .pill.time{ color:#d63a3a; }
+  .pill.warn{ animation:blink .5s steps(2) infinite; }
+  @keyframes blink{ 50%{ background:#ffd5d5; } }
+  #goalText{
+    position:absolute; top:54px; left:50%; transform:translateX(-50%); z-index:20;
+    background:var(--purple); color:#fff; font-weight:900; font-size:13px;
+    padding:6px 14px; border-radius:999px; box-shadow:0 4px 0 #b03a4c; white-space:nowrap;
+  }
+
+  /* 落ちてくる単語 */
+  .word{
+    position:absolute; width:62px; display:flex; flex-direction:column; align-items:center;
+    will-change:transform; z-index:12;
+  }
+  .word .pic{
+    width:52px; height:52px; border-radius:14px; background:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:30px;
+    box-shadow:0 3px 0 rgba(0,0,0,.15); border:3px solid #fff;
+  }
+  .word .label{
+    margin-top:2px; background:#fff; border-radius:8px; padding:1px 6px;
+    font-size:11px; font-weight:900; color:var(--ink); white-space:nowrap;
+    box-shadow:0 2px 0 rgba(0,0,0,.12);
+  }
+  .word.caught{ animation:pop .25s ease forwards; }
+  @keyframes pop{ to{ transform:scale(1.6); opacity:0; } }
+
+  /* キャラクター */
+  #player{ position:absolute; bottom:0; width:96px; z-index:15; text-align:center; }
+  #player .face{ font-size:46px; line-height:1; filter:drop-shadow(0 3px 2px rgba(0,0,0,.25)); }
+  #player .basket{
+    position:relative; width:96px; height:42px; margin:-6px auto 0;
+    background:linear-gradient(180deg,#e8a96b,#c47e3e);
+    border:4px solid #a9692f; border-top:none;
+    border-radius:6px 6px 40px 40px / 6px 6px 26px 26px;
+    box-shadow:inset 0 6px 0 rgba(255,255,255,.25);
+  }
+  #player .basket::before{
+    content:""; position:absolute; top:-9px; left:-4px; right:-4px; height:12px;
+    background:#d98f4a; border:4px solid #a9692f; border-radius:8px;
+  }
+  /* 籠の縦じま */
+  #player .basket::after{
+    content:""; position:absolute; inset:6px 0 0 0;
+    background-image:repeating-linear-gradient(90deg,transparent 0 9px,rgba(0,0,0,.12) 9px 12px);
+    border-radius:0 0 40px 40px;
+  }
+
+  /* 操作ボタン */
+  #pad{ position:absolute; bottom:14px; left:0; right:0; z-index:22; display:flex; justify-content:space-between; padding:0 16px; pointer-events:none; }
+  .moveBtn{
+    pointer-events:auto; width:74px; height:74px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.85); box-shadow:0 5px 0 rgba(0,0,0,.18);
+    font-size:34px; font-weight:900; color:var(--ink); cursor:pointer;
+  }
+  .moveBtn:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.18); }
+
+  .hint{ font-size:12px; color:#fff; opacity:.9; }
+
+  /* フローティングのスコア表示 */
+  .pop-score{
+    position:absolute; z-index:18; font-weight:900; font-size:20px; pointer-events:none;
+    animation:rise .8s ease forwards;
+  }
+  @keyframes rise{ to{ transform:translateY(-40px); opacity:0; } }
+
+  /* 脱出ドア演出 */
+  .door{
+    width:120px; height:180px; background:linear-gradient(180deg,#8b5a2b,#6b4220);
+    border:8px solid #d9a35c; border-radius:10px; position:relative; margin:6px auto;
+    overflow:hidden;
+  }
+  .door::after{ content:"🚪"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:80px; }
+  .door .light{ position:absolute; inset:0; background:#fff; opacity:0; }
+  .door.open .light{ animation:flash 1.2s ease forwards; }
+  @keyframes flash{ 0%{opacity:0;} 60%{opacity:1;} 100%{opacity:.85;} }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== タイトル ===== -->
+  <div id="titleScreen" class="screen">
+    <span class="floaty" style="left:12%;top:14%;">🧪</span>
+    <span class="floaty" style="right:14%;top:18%;animation-delay:1.2s;">⚗️</span>
+    <span class="floaty" style="left:18%;bottom:18%;animation-delay:2s;">🔬</span>
+    <span class="floaty" style="right:16%;bottom:14%;animation-delay:.6s;">🧫</span>
+    <div class="pop-title">脱出<br>ゲーム</div>
+    <div class="bubble">
+      🚪 教室にとじこめられた！<br>
+      ミニゲームをクリアして<br>脱出をめざそう！
+    </div>
+    <button class="btn" id="toStage">▶ はじめる</button>
+  </div>
+
+  <!-- ===== ステージ説明 ===== -->
+  <div id="introScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#ff9e7a,#d6553a);">
+    <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 var(--purple),0 8px 12px rgba(0,0,0,.3);">ミニゲーム①</div>
+    <div class="bubble">
+      <div style="font-size:22px;color:var(--purple);margin-bottom:6px;">🧺 単語拾いゲーム</div>
+      落ちてくる言葉の中から<br>
+      <b style="color:#d63a3a;font-size:18px;">化学の「単体」</b>を<br>
+      かごでキャッチ！<br><br>
+      ⭐ 5こ集めたらドアが開く！<br>
+      ⏱ せいげん時間 2分<br>
+      ⚠ 化合物・まちがいは <b>-1</b>
+    </div>
+    <button class="btn blue" id="startGame">🧺 スタート！</button>
+  </div>
+
+  <!-- ===== ゲーム ===== -->
+  <div id="gameScreen" class="hidden">
+    <div id="classroom">
+      <div class="window" style="left:6%;"></div>
+      <div class="window" style="right:6%;"></div>
+      <div class="board">
+        <div class="chalk">化学の「単体」を集めよう！
+          <small>単体＝1種類の原子だけ / 化合物・まちがいは -1</small>
+        </div>
+      </div>
+      <div class="floorline"></div>
+    </div>
+
+    <div id="hud">
+      <div class="pill">⭐ <span id="score">0</span>/5</div>
+      <div class="pill time" id="timePill">⏱ <span id="time">2:00</span></div>
+    </div>
+    <div id="goalText">お題：化学の「単体」を拾え！</div>
+
+    <div id="player">
+      <div class="face" id="face">🧒</div>
+      <div class="basket"></div>
+    </div>
+
+    <div id="pad">
+      <button class="moveBtn" id="leftBtn">◀</button>
+      <button class="moveBtn" id="rightBtn">▶</button>
+    </div>
+  </div>
+
+  <!-- ===== クリア ===== -->
+  <div id="winScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#ff9a9a,#d63a3a);">
+    <div class="pop-title" style="text-shadow:0 4px 0 var(--green),0 8px 12px rgba(0,0,0,.3);">脱出成功！</div>
+    <div class="door open"><div class="light"></div></div>
+    <div class="bubble">🎉 単体を5こ集めてドアが開いた！<br>みごと教室から脱出だ！</div>
+    <button class="btn" id="replayBtn">🔁 もう一度</button>
+  </div>
+
+  <!-- ===== 時間切れ ===== -->
+  <div id="loseScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#ff8f8f,#c43a3a);">
+    <div class="pop-title" style="text-shadow:0 4px 0 #a52a2a,0 8px 12px rgba(0,0,0,.3);">時間切れ…</div>
+    <div class="bubble">⏱ 時間内に脱出できなかった…<br>もう一度チャレンジしよう！</div>
+    <button class="btn blue" id="retryBtn">🔁 リトライ</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ===== 単語データ（教科書イラスト＝絵文字＋名前） =====
+  // type: "element"=単体（正解）, "compound"=化合物（不正解 -1）
+  const WORDS = [
+    // --- 単体（あつめる対象）---
+    {name:"酸素",   pic:"💨", type:"element"},
+    {name:"水素",   pic:"🎈", type:"element"},
+    {name:"鉄",     pic:"🔩", type:"element"},
+    {name:"金",     pic:"🥇", type:"element"},
+    {name:"銀",     pic:"🥈", type:"element"},
+    {name:"銅",     pic:"🔶", type:"element"},
+    {name:"炭素",   pic:"✏️", type:"element"},
+    {name:"窒素",   pic:"🌫️", type:"element"},
+    {name:"アルミニウム", pic:"🥫", type:"element"},
+    {name:"硫黄",   pic:"🟡", type:"element"},
+    {name:"亜鉛",   pic:"🔋", type:"element"},
+    {name:"マグネシウム", pic:"✨", type:"element"},
+    {name:"ヘリウム", pic:"🎈", type:"element"},
+    // --- 化合物（拾うと -1）---
+    {name:"水",       pic:"💧", type:"compound"},
+    {name:"二酸化炭素", pic:"☁️", type:"compound"},
+    {name:"食塩",     pic:"🧂", type:"compound"},
+    {name:"アンモニア", pic:"🧴", type:"compound"},
+    {name:"塩酸",     pic:"🧪", type:"compound"},
+    {name:"硫酸",     pic:"⚗️", type:"compound"},
+    {name:"メタン",   pic:"🔥", type:"compound"},
+    {name:"砂糖",     pic:"🍬", type:"compound"},
+    {name:"酸化銅",   pic:"🟤", type:"compound"},
+  ];
+
+  const TARGET = 5;          // クリアに必要なポイント
+  const TIME_LIMIT = 120;    // 2分（秒）
+
+  // ===== DOM =====
+  const app        = document.getElementById('app');
+  const gameScreen = document.getElementById('gameScreen');
+  const classroom  = document.getElementById('classroom');
+  const player     = document.getElementById('player');
+  const face       = document.getElementById('face');
+  const scoreEl    = document.getElementById('score');
+  const timeEl     = document.getElementById('time');
+  const timePill   = document.getElementById('timePill');
+
+  // ===== 状態 =====
+  let state = 'title';
+  let words = [];            // {el, x, y, speed, type, w, h}
+  let score = 0;
+  let timeLeft = TIME_LIMIT;
+  let playerX = 0;           // 中心X(px)
+  let moveDir = 0;           // -1,0,1
+  let lastTime = 0;
+  let spawnTimer = 0;
+  let timerAcc = 0;
+  let rafId = null;
+  let arena = {w:0,h:0};
+  const PLAYER_W = 96;
+  const PLAYER_SPEED = 360;  // px/秒（単語より速い）
+
+  function arenaSize(){
+    const r = app.getBoundingClientRect();
+    arena.w = r.width; arena.h = r.height;
+  }
+  window.addEventListener('resize', arenaSize);
+
+  // ===== 画面遷移 =====
+  function show(id){
+    ['titleScreen','introScreen','winScreen','loseScreen'].forEach(s=>{
+      document.getElementById(s).classList.add('hidden');
+    });
+    gameScreen.classList.add('hidden');
+    if(id==='game'){ gameScreen.classList.remove('hidden'); }
+    else { document.getElementById(id).classList.remove('hidden'); }
+  }
+
+  // ===== ゲーム開始 =====
+  function startGame(){
+    arenaSize();
+    state = 'playing';
+    score = 0; timeLeft = TIME_LIMIT;
+    spawnTimer = 0; timerAcc = 0; moveDir = 0;
+    words.forEach(w=>w.el.remove()); words = [];
+    scoreEl.textContent = '0';
+    updateTime();
+    timePill.classList.remove('warn');
+    // キャラはランダムで男の子/女の子
+    face.textContent = Math.random()<0.5 ? '👦' : '👧';
+    playerX = arena.w/2;
+    positionPlayer();
+    show('game');
+    lastTime = performance.now();
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function positionPlayer(){
+    const half = PLAYER_W/2;
+    playerX = Math.max(half, Math.min(arena.w-half, playerX));
+    player.style.left = (playerX-half)+'px';
+  }
+
+  // ===== 単語スポーン =====
+  function spawnWord(){
+    const r = Math.random();
+    // 単体をやや多めに（約6割）
+    let pool = WORDS.filter(w=> r<0.6 ? w.type==='element' : w.type==='compound');
+    if(pool.length===0) pool = WORDS;
+    const data = pool[Math.floor(Math.random()*pool.length)];
+
+    const el = document.createElement('div');
+    el.className = 'word';
+    el.innerHTML = '<div class="pic">'+data.pic+'</div><div class="label">'+data.name+'</div>';
+    classroom.appendChild(el);
+
+    const w = 62, h = 72;
+    const x = Math.random()*(arena.w - w);
+    // 単語の落下速度はキャラより遅く
+    const speed = 70 + Math.random()*60;  // px/秒
+    el.style.left = x+'px';
+    el.style.top = (-h)+'px';
+    words.push({el, x, y:-h, speed, type:data.type, w, h, name:data.name, dead:false});
+  }
+
+  // ===== 当たり判定（籠） =====
+  function basketRect(){
+    const half = PLAYER_W/2;
+    // 籠の上部〜中央あたりをキャッチ領域に
+    const top = arena.h - 56;   // 籠の上端付近
+    return { left:playerX-half, right:playerX+half, top:top, bottom:arena.h };
+  }
+
+  function flash(x, y, text, color){
+    const f = document.createElement('div');
+    f.className = 'pop-score';
+    f.textContent = text;
+    f.style.color = color;
+    f.style.left = x+'px';
+    f.style.top = y+'px';
+    classroom.appendChild(f);
+    setTimeout(()=>f.remove(), 800);
+  }
+
+  function addScore(d, x, y){
+    score = Math.max(0, score + d);
+    scoreEl.textContent = score;
+    if(d>0) flash(x,y,'+1','#2db94f');
+    else    flash(x,y,'-1','#e23b3b');
+    if(score>=TARGET) win();
+  }
+
+  // ===== メインループ =====
+  function loop(now){
+    if(state!=='playing') return;
+    let dt = (now-lastTime)/1000; lastTime = now;
+    if(dt>0.05) dt=0.05; // タブ復帰などのスパイク抑制
+
+    // タイマー
+    timerAcc += dt;
+    if(timerAcc>=1){
+      timeLeft -= Math.floor(timerAcc);
+      timerAcc -= Math.floor(timerAcc);
+      if(timeLeft<=0){ timeLeft=0; updateTime(); return lose(); }
+      updateTime();
+      if(timeLeft<=10) timePill.classList.add('warn');
+    }
+
+    // プレイヤー移動
+    if(moveDir!==0){ playerX += moveDir*PLAYER_SPEED*dt; positionPlayer(); }
+
+    // スポーン
+    spawnTimer -= dt;
+    if(spawnTimer<=0){ spawnWord(); spawnTimer = 0.85 + Math.random()*0.7; }
+
+    // 単語落下＆判定
+    const bk = basketRect();
+    for(const w of words){
+      if(w.dead) continue;
+      w.y += w.speed*dt;
+      w.el.style.top = w.y+'px';
+
+      const wl = w.x, wr = w.x+w.w, wt = w.y, wb = w.y+w.h;
+      // 籠と重なったらキャッチ
+      if(wb>=bk.top && wt<=bk.bottom && wr>=bk.left && wl<=bk.right){
+        w.dead = true;
+        w.el.classList.add('caught');
+        const cx = w.x, cy = w.y;
+        setTimeout(()=>w.el.remove(), 250);
+        if(w.type==='element') addScore(+1, cx, cy);
+        else                   addScore(-1, cx, cy);  // 化合物・まちがいは -1
+        continue;
+      }
+      // 画面下まで来たら取り逃し→消える
+      if(wt > arena.h){
+        w.dead = true;
+        w.el.remove();
+      }
+    }
+    words = words.filter(w=>!w.dead || w.el.isConnected);
+    words = words.filter(w=>w.el.isConnected);
+
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function updateTime(){
+    const m = Math.floor(timeLeft/60);
+    const s = timeLeft%60;
+    timeEl.textContent = m+':'+(s<10?'0':'')+s;
+  }
+
+  function win(){
+    if(state!=='playing') return;
+    state='win';
+    cancelAnimationFrame(rafId);
+    setTimeout(()=>show('winScreen'), 350);
+  }
+  function lose(){
+    if(state==='lose') return;
+    state='lose';
+    cancelAnimationFrame(rafId);
+    show('loseScreen');
+  }
+
+  // ===== 操作：左右ボタン =====
+  function bindHold(btn, dir){
+    const down=(e)=>{ e.preventDefault(); moveDir=dir; };
+    const up  =(e)=>{ e.preventDefault(); if(moveDir===dir) moveDir=0; };
+    btn.addEventListener('touchstart',down,{passive:false});
+    btn.addEventListener('touchend',up,{passive:false});
+    btn.addEventListener('touchcancel',up,{passive:false});
+    btn.addEventListener('mousedown',down);
+    btn.addEventListener('mouseup',up);
+    btn.addEventListener('mouseleave',up);
+  }
+  bindHold(document.getElementById('leftBtn'), -1);
+  bindHold(document.getElementById('rightBtn'), +1);
+
+  // ===== 操作：画面ドラッグでも移動 =====
+  function dragMove(clientX){
+    const r = app.getBoundingClientRect();
+    playerX = clientX - r.left;
+    positionPlayer();
+  }
+  gameScreen.addEventListener('touchstart',(e)=>{
+    if(e.target.classList.contains('moveBtn')) return;
+    dragMove(e.touches[0].clientX);
+  },{passive:true});
+  gameScreen.addEventListener('touchmove',(e)=>{
+    if(state!=='playing') return;
+    dragMove(e.touches[0].clientX);
+  },{passive:true});
+  // PC：マウスでも
+  let mouseDown=false;
+  gameScreen.addEventListener('mousedown',(e)=>{ if(e.target.classList.contains('moveBtn'))return; mouseDown=true; dragMove(e.clientX); });
+  window.addEventListener('mousemove',(e)=>{ if(mouseDown&&state==='playing') dragMove(e.clientX); });
+  window.addEventListener('mouseup',()=>{ mouseDown=false; });
+
+  // キーボード
+  window.addEventListener('keydown',(e)=>{
+    if(e.key==='ArrowLeft') moveDir=-1;
+    if(e.key==='ArrowRight') moveDir=1;
+  });
+  window.addEventListener('keyup',(e)=>{
+    if((e.key==='ArrowLeft'&&moveDir===-1)||(e.key==='ArrowRight'&&moveDir===1)) moveDir=0;
+  });
+
+  // ===== ボタン =====
+  document.getElementById('toStage').onclick   = ()=>show('introScreen');
+  document.getElementById('startGame').onclick = startGame;
+  document.getElementById('replayBtn').onclick = ()=>show('introScreen');
+  document.getElementById('retryBtn').onclick  = startGame;
+
+  arenaSize();
+})();
+</script>
+</body>
+</html>
