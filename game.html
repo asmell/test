@@ -347,6 +347,18 @@
   .char-prev{ width:104px; height:208px; overflow:hidden; display:flex; align-items:flex-end; justify-content:center; }
   .char-prev svg{ width:104px; height:auto; }
   .char-name{ font-weight:900; font-size:17px; color:var(--ink); }
+  #nameInput{
+    font-family:inherit; font-weight:900; font-size:18px; text-align:center; color:var(--ink);
+    border:none; border-radius:999px; padding:12px 18px; width:80%; max-width:300px;
+    box-shadow:0 4px 0 rgba(0,0,0,.18); outline:none;
+  }
+  #nameInput::placeholder{ color:#b0a8bd; font-size:14px; }
+  /* クリア時の成績パネル */
+  .ty-stats{
+    background:rgba(255,255,255,.92); border-radius:16px; padding:12px 18px; margin-top:4px;
+    box-shadow:0 5px 0 rgba(0,0,0,.18); font-weight:900; color:var(--ink); line-height:1.7; font-size:17px;
+  }
+  .ty-stats b{ color:#e0922f; }
   /* キャラに輪郭線（背景と同化しないように） */
   #player .avatar svg, .char-prev svg, #escWalkerInner svg{
     filter:
@@ -536,12 +548,13 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.5.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.6.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
   <div id="charSelect" class="screen room hidden">
-    <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 #1c6fae,0 8px 12px rgba(0,0,0,.3);">キャラを<br>えらぼう</div>
+    <div class="pop-title" style="font-size:7vw;text-shadow:0 4px 0 #1c6fae,0 8px 12px rgba(0,0,0,.3);">なまえと<br>キャラ</div>
+    <input id="nameInput" type="text" maxlength="8" placeholder="なまえを入力（8文字まで）" autocomplete="off">
     <div class="char-choices">
       <button class="char-btn" data-g="boy">
         <div class="char-prev" id="prevBoy"></div>
@@ -720,6 +733,11 @@
     </div>
     <div id="thankyou" class="hidden">
       <div class="ty">Thank you<br>for playing!!!</div>
+      <div class="ty-stats">
+        👤 <span id="tyName">―</span><br>
+        ⏱ 合計タイム <b id="tyTime">0:00</b><br>
+        ❌ まちがい <b id="tyMiss">0</b> こ
+      </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
         <button class="btn" id="escResultBtn">📋 けっかを見る</button>
         <button class="btn blue" id="escReplay">🔁 もう一度</button>
@@ -1498,6 +1516,9 @@
 
   // ===== けっか記録（○✕のふりかえり） =====
   let resultsLog = [];
+  let playerName = '';        // プレイヤー名
+  let totalMs = 0;            // 全ステージの合計プレイ時間(ms)
+  let stageStartMs = 0;       // いまのステージ開始時刻
   function logResult(stage, text, ok){ resultsLog.push({stage, text, ok}); }
   function showResults(header){
     document.getElementById('resultTitle').textContent = header;
@@ -1561,6 +1582,7 @@
   // ステージのクリア → カギGETアニメ → つぎへ
   function stageClear(n){
     stopStageClock();
+    totalMs += Date.now() - stageStartMs;   // このステージのタイムを合計に加算
     keys = n;
     playClear();                 // ミニゲームクリア音
     showKeyGet(n, ()=>{          // 🔑 GET アニメのあと
@@ -1585,6 +1607,7 @@
   // ステージの開始（n のミニゲームをはじめる）
   function startStage(n){
     stage = n;
+    stageStartMs = Date.now();   // タイム計測スタート
     if(n===1) startGame();
     else if(n===2) startSpell();
     else if(n===3) startMap();
@@ -1617,6 +1640,13 @@
   }
   function showThankYou(){
     const ty = document.getElementById('thankyou');
+    // 全ステージクリアした人の成績（名前・合計タイム・まちがい数）
+    const miss = resultsLog.filter(r=>!r.ok).length;
+    const sec = Math.round(totalMs/1000);
+    const mm = Math.floor(sec/60), ss = sec%60;
+    document.getElementById('tyName').textContent = playerName || 'ゲスト';
+    document.getElementById('tyTime').textContent = mm+':'+(ss<10?'0':'')+ss;
+    document.getElementById('tyMiss').textContent = miss;
     ty.classList.remove('hidden');
     // 紙ふぶき
     const emo = ['🎉','✨','🎊','⭐','🔑'];
@@ -1633,7 +1663,9 @@
 
   // 1プレイの最初に記録などをリセット
   function startRun(){
-    keys=0; stage=1; resultsLog=[];
+    keys=0; stage=1; resultsLog=[]; totalMs=0;
+    const nm = (document.getElementById('nameInput').value||'').trim();
+    if(nm) playerName = nm;       // 入力があれば名前を更新
     document.querySelectorAll('.ty-conf').forEach(c=>c.remove());
     show('introScreen');
   }
