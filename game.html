@@ -294,6 +294,30 @@
   .key.del{ background:#ffd5d5; }
   .key.open{ background:linear-gradient(180deg,#9be79b,var(--green)); color:#0a4d1a; box-shadow:0 4px 0 #2f9b46; grid-column:span 1; }
 
+  /* ===== カギGET アニメ ===== */
+  .kg-stage{ position:relative; width:160px; height:160px; display:flex; align-items:center; justify-content:center; }
+  .kg-key{ font-size:96px; animation:kgpop 1s cubic-bezier(.2,1.3,.4,1) both; filter:drop-shadow(0 6px 4px rgba(0,0,0,.3)); }
+  @keyframes kgpop{
+    0%{ transform:translateY(70px) scale(.2) rotate(-200deg); opacity:0; }
+    55%{ transform:translateY(0) scale(1.3) rotate(12deg); opacity:1; }
+    72%{ transform:scale(.92) rotate(-7deg); }
+    100%{ transform:scale(1) rotate(0); opacity:1; }
+  }
+  .kg-ring{
+    position:absolute; width:40px; height:40px; border-radius:50%;
+    border:6px solid #fff; opacity:.9; animation:kgring .9s ease-out .35s both;
+  }
+  @keyframes kgring{ 0%{ transform:scale(.2); opacity:.9; } 100%{ transform:scale(3.4); opacity:0; } }
+  .kg-spark{ position:absolute; font-size:30px; opacity:0; animation:kgspark 1s ease-out .4s both; }
+  @keyframes kgspark{ 0%{ transform:translate(0,0) scale(0); opacity:0; } 40%{ opacity:1; } 100%{ transform:translate(var(--a),var(--b)) scale(1.2); opacity:0; } }
+  .kg-text{
+    font-size:10vw; font-weight:900; color:#fff; margin-top:6px;
+    text-shadow:0 4px 0 #c47e00,0 8px 12px rgba(0,0,0,.3); animation:kgtext .5s ease .35s both;
+  }
+  @media(min-width:480px){ .kg-text{ font-size:48px; } }
+  @keyframes kgtext{ from{ transform:translateY(18px) scale(.8); opacity:0; } to{ transform:translateY(0) scale(1); opacity:1; } }
+  .kg-count{ color:#fff; font-weight:900; font-size:20px; margin-top:8px; text-shadow:0 2px 0 rgba(0,0,0,.2); animation:kgtext .5s ease .55s both; }
+
   /* ===== 脱出アニメ（ドアが開いて出る → Thank you） ===== */
   #escScene{
     position:relative; width:100%; max-width:360px; height:360px; border-radius:16px; overflow:hidden;
@@ -367,7 +391,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.4.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.5.0</div>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -430,6 +454,20 @@
     <div class="pop-title" style="color:#ff5b5b;text-shadow:0 4px 0 #7a1f1f,0 8px 14px rgba(0,0,0,.5);">GAME<br>OVER</div>
     <div class="bubble">⏱ じかんぎれ…！<br>タイトルにもどります</div>
     <button class="btn blue" id="toTitleBtn">🏠 タイトルへ</button>
+  </div>
+
+  <!-- ===== カギGET アニメ（クリアごと） ===== -->
+  <div id="keyGet" class="screen hidden" style="background:radial-gradient(circle at 50% 42%,#ffe7a0,#e0a92f);">
+    <div class="kg-stage">
+      <span class="kg-spark" style="--a:-70px;--b:-50px;">✨</span>
+      <span class="kg-spark" style="--a:70px;--b:-55px;animation-delay:.1s;">✨</span>
+      <span class="kg-spark" style="--a:-80px;--b:40px;animation-delay:.2s;">⭐</span>
+      <span class="kg-spark" style="--a:80px;--b:45px;animation-delay:.15s;">⭐</span>
+      <div class="kg-ring"></div>
+      <div class="kg-key">🔑</div>
+    </div>
+    <div class="kg-text">カギ GET！</div>
+    <div class="kg-count">🔑 <span id="kgCount">1</span> / 5</div>
   </div>
 
   <!-- ===== カギGET ＆ つぎのステージ説明（共通） ===== -->
@@ -1261,20 +1299,28 @@
     setTimeout(()=>{ if(state==='gameover') show('titleScreen'); }, 2600); // 自動でタイトルへ
   }
 
-  // ステージのクリア → カギGET → つぎへ
+  // ステージのクリア → カギGETアニメ → つぎへ
   function stageClear(n){
     stopStageClock();
     keys = n;
-    if(n >= TOTAL_STAGES){ finalWin(); return; }
-    playClear();   // ミニゲームクリア音
+    playClear();                 // ミニゲームクリア音
+    showKeyGet(n, ()=>{          // 🔑 GET アニメのあと
+      if(n >= TOTAL_STAGES){ finalWin(); return; }
+      const info = STAGE_INFO[n+1];
+      document.getElementById('niEmoji').textContent = info.emoji;
+      document.getElementById('niTitle').textContent = info.title;
+      document.getElementById('niDesc').innerHTML = info.desc;
+      document.getElementById('niKeys').textContent = keys;
+      stage = n+1;
+      show('nextIntro');
+    });
+  }
 
-    const info = STAGE_INFO[n+1];
-    document.getElementById('niEmoji').textContent = info.emoji;
-    document.getElementById('niTitle').textContent = info.title;
-    document.getElementById('niDesc').innerHTML = info.desc;
-    document.getElementById('niKeys').textContent = keys;
-    stage = n+1;
-    show('nextIntro');
+  // 🔑 カギGET の短いアニメ
+  function showKeyGet(n, done){
+    document.getElementById('kgCount').textContent = n;
+    show('keyGet');
+    setTimeout(done, 1600);
   }
 
   // ステージの開始（n のミニゲームをはじめる）
