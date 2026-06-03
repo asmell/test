@@ -1,3 +1,6 @@
-# Playwright で生成するテスト用スクリーンショット（使い捨て）
+# Playwright で生成するテスト用スクリーンショット・スクリプト（使い捨て）
 shot-*.png
 t*.png
+r3_*.png
+room_*.png
+shot*.js
