@@ -127,10 +127,10 @@
   @keyframes pop{ to{ transform:scale(1.6); opacity:0; } }
 
   /* キャラクター */
-  #player{ position:absolute; bottom:0; width:96px; z-index:15; text-align:center; }
-  #player .face{ font-size:46px; line-height:1; filter:drop-shadow(0 3px 2px rgba(0,0,0,.25)); }
+  #player{ position:absolute; bottom:6px; width:96px; z-index:15; text-align:center; }
+  #player .face{ font-size:46px; line-height:1; margin-top:2px; filter:drop-shadow(0 3px 2px rgba(0,0,0,.25)); }
   #player .basket{
-    position:relative; width:96px; height:42px; margin:-6px auto 0;
+    position:relative; width:96px; height:42px; margin:0 auto;
     background:linear-gradient(180deg,#e8a96b,#c47e3e);
     border:4px solid #a9692f; border-top:none;
     border-radius:6px 6px 40px 40px / 6px 6px 26px 26px;
@@ -196,7 +196,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v1.4.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v1.5.0</div>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -235,8 +235,8 @@
     <button id="muteBtn" title="BGM オン／オフ">🔊</button>
 
     <div id="player">
-      <div class="face" id="face">🧒</div>
       <div class="basket"></div>
+      <div class="face" id="face">🧒</div>
     </div>
 
     <div id="pad">
@@ -391,9 +391,13 @@
   // ===== 当たり判定（籠） =====
   function basketRect(){
     const half = PLAYER_W/2;
-    // 籠の上部〜中央あたりをキャッチ領域に
-    const top = arena.h - 56;   // 籠の上端付近
-    return { left:playerX-half, right:playerX+half, top:top, bottom:arena.h };
+    // 頭の上の籠（実際の位置）をキャッチ領域にする
+    const basketEl = player.querySelector('.basket');
+    const pr = app.getBoundingClientRect();
+    const br = basketEl.getBoundingClientRect();
+    const top = br.top - pr.top;
+    const bottom = br.bottom - pr.top;
+    return { left:playerX-half, right:playerX+half, top:top, bottom:bottom };
   }
 
   function flash(x, y, text, color){
