@@ -294,6 +294,19 @@
   .key.del{ background:#ffd5d5; }
   .key.open{ background:linear-gradient(180deg,#9be79b,var(--green)); color:#0a4d1a; box-shadow:0 4px 0 #2f9b46; grid-column:span 1; }
 
+  /* ===== キャラえらび ===== */
+  .char-choices{ display:flex; gap:16px; }
+  .char-btn{
+    border:none; cursor:pointer; background:#fff; border-radius:20px; padding:10px 10px 14px;
+    box-shadow:0 7px 0 rgba(0,0,0,.18); transition:transform .1s, box-shadow .1s;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .char-btn:active{ transform:translateY(4px); box-shadow:0 3px 0 rgba(0,0,0,.18); }
+  .char-btn.sel{ outline:5px solid #ffd93d; }
+  .char-prev{ width:108px; height:150px; overflow:hidden; display:flex; align-items:flex-end; justify-content:center; }
+  .char-prev svg{ width:108px; height:auto; }
+  .char-name{ font-weight:900; font-size:17px; color:var(--ink); }
+
   /* ===== けっか画面 ===== */
   #resultSummary{ color:#fff; font-weight:900; font-size:17px; }
   #resultList{
@@ -394,10 +407,19 @@
 
   <!-- ===== タイトル ===== -->
   <div id="titleScreen" class="screen">
-    <span class="floaty" style="left:12%;top:14%;">🧪</span>
-    <span class="floaty" style="right:14%;top:18%;animation-delay:1.2s;">⚗️</span>
-    <span class="floaty" style="left:18%;bottom:18%;animation-delay:2s;">🔬</span>
-    <span class="floaty" style="right:16%;bottom:14%;animation-delay:.6s;">🧫</span>
+    <!-- いろんな教科の絵文字（理科・算数・英語・社会・国語・音楽…） -->
+    <span class="floaty" style="left:8%;top:8%;">🧪</span>
+    <span class="floaty" style="right:9%;top:7%;animation-delay:1.2s;">📐</span>
+    <span class="floaty" style="left:26%;top:13%;animation-delay:.4s;">🔤</span>
+    <span class="floaty" style="right:27%;top:12%;animation-delay:1.8s;">🗾</span>
+    <span class="floaty" style="left:6%;top:34%;animation-delay:2.2s;">➗</span>
+    <span class="floaty" style="right:6%;top:33%;animation-delay:.9s;">📖</span>
+    <span class="floaty" style="left:9%;top:54%;animation-delay:1.5s;">✍️</span>
+    <span class="floaty" style="right:8%;top:55%;animation-delay:2.6s;">🎵</span>
+    <span class="floaty" style="left:14%;bottom:10%;animation-delay:2s;">🔬</span>
+    <span class="floaty" style="right:15%;bottom:9%;animation-delay:.6s;">🏯</span>
+    <span class="floaty" style="left:34%;bottom:6%;animation-delay:1.1s;">🎨</span>
+    <span class="floaty" style="right:33%;bottom:7%;animation-delay:1.7s;">🔑</span>
     <div class="pop-title">脱出<br>ゲーム</div>
     <div class="bubble">
       🚪 教室にとじこめられた！<br>
@@ -408,7 +430,23 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.7.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.8.0</div>
+  </div>
+
+  <!-- ===== キャラえらび ===== -->
+  <div id="charSelect" class="screen hidden" style="background:radial-gradient(circle at 50% 25%,#7ed0ff,#3a8fd6);">
+    <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 #1c6fae,0 8px 12px rgba(0,0,0,.3);">キャラを<br>えらぼう</div>
+    <div class="char-choices">
+      <button class="char-btn" data-g="boy">
+        <div class="char-prev" id="prevBoy"></div>
+        <div class="char-name">👦 男の子</div>
+      </button>
+      <button class="char-btn" data-g="girl">
+        <div class="char-prev" id="prevGirl"></div>
+        <div class="char-name">👧 女の子</div>
+      </button>
+    </div>
+    <button class="btn" id="charRandom">🎲 おまかせで スタート</button>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -865,6 +903,7 @@
   let timerAcc = 0;
   let rafId = null;
   let lastIsBoy = true;      // 最後に使ったキャラ（脱出アニメで再利用）
+  let chosenIsBoy = null;    // キャラえらびの結果（null=おまかせ）
   let arena = {w:0,h:0};
   const PLAYER_W = 96;
   const PLAYER_SPEED = 360;  // px/秒（単語より速い）
@@ -981,7 +1020,7 @@
     updateTime();
     timePill.classList.remove('warn');
     // キャラはランダムで男の子/女の子（学生イラスト）
-    const isBoy = Math.random()<0.5;
+    const isBoy = (chosenIsBoy!==null) ? chosenIsBoy : (Math.random()<0.5);
     lastIsBoy = isBoy;
     avatar.innerHTML = buildStudent(isBoy);
     playerX = arena.w/2;
@@ -1829,8 +1868,25 @@
     }
   }
 
+  // ===== キャラえらび =====
+  function openCharSelect(){
+    document.getElementById('prevBoy').innerHTML  = buildStudent(true);
+    document.getElementById('prevGirl').innerHTML = buildStudent(false);
+    document.querySelectorAll('.char-btn').forEach(b=>b.classList.remove('sel'));
+    show('charSelect');
+  }
+  document.querySelectorAll('.char-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      chosenIsBoy = (btn.dataset.g==='boy');
+      document.querySelectorAll('.char-btn').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      setTimeout(startRun, 220);   // えらんだら少し見せてからスタート
+    };
+  });
+  document.getElementById('charRandom').onclick = ()=>{ chosenIsBoy = null; startRun(); };
+
   // ===== ボタン =====
-  document.getElementById('toStage').onclick     = startRun;
+  document.getElementById('toStage').onclick     = openCharSelect;
   document.getElementById('startGame').onclick   = ()=>startStage(1);
   document.getElementById('replayBtn').onclick   = restartAll;
   document.getElementById('niStart').onclick     = ()=>startStage(stage);
