@@ -369,43 +369,97 @@
   @keyframes kgtext{ from{ transform:translateY(18px) scale(.8); opacity:0; } to{ transform:translateY(0) scale(1); opacity:1; } }
   .kg-count{ color:#fff; font-weight:900; font-size:20px; margin-top:8px; text-shadow:0 2px 0 rgba(0,0,0,.2); animation:kgtext .5s ease .55s both; }
 
-  /* ===== 脱出アニメ（ドアが開いて出る → Thank you） ===== */
+  /* ===== 脱出アニメ（教室→ドアが開いて出る→脱出成功→Thank you） ===== */
   #escScene{
-    position:relative; width:100%; max-width:360px; height:360px; border-radius:16px; overflow:hidden;
-    background:linear-gradient(180deg,#ffe0d0 0 62%, #e0a486 62% 100%);
-    box-shadow:0 8px 0 rgba(0,0,0,.12);
+    position:relative; width:100%; max-width:360px; height:380px; border-radius:16px; overflow:hidden;
+    background:linear-gradient(180deg,#eaf6ff 0 70%, #cdab7e 70% 72%, #e7cda4 72% 100%);
+    box-shadow:0 8px 0 rgba(0,0,0,.18); transition:transform 1.2s ease;
   }
+  #escScene.zoom{ transform:scale(1.18); }   /* 最後にドアへ寄る */
+  /* 黒板 */
+  .esc-board{
+    position:absolute; top:18px; left:18px; width:150px; height:74px; border-radius:6px;
+    background:linear-gradient(180deg,#2f6b4f,#245440); border:7px solid #c9905a;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .esc-board span{ color:#eafff1; font-weight:900; font-size:14px; opacity:.9; }
   #escScene .escWin{
-    position:absolute; top:28px; left:26px; width:58px; height:68px;
-    background:linear-gradient(180deg,#ffd6cf,#ffb0a0); border:5px solid #fff; border-radius:6px;
+    position:absolute; top:104px; width:56px; height:60px;
+    background:linear-gradient(180deg,#bfe9ff,#8fd2ff); border:5px solid #fff; border-radius:6px;
+    box-shadow:0 3px 0 rgba(0,0,0,.1);
   }
+  #escScene .escWin::after{ content:""; position:absolute; inset:0; border-left:3px solid #fff; left:50%; }
+  .esc-floor{ position:absolute; left:0; right:0; top:70%; height:4px; background:#b98a55; }
+
   .escDoorFrame{
-    position:absolute; right:36px; top:66px; width:92px; height:176px;
+    position:absolute; right:30px; top:120px; width:96px; height:146px;
     background:#c9905a; border-radius:8px 8px 0 0; box-shadow:0 4px 0 #a06e3c;
   }
-  .escLight{
-    position:absolute; inset:7px; border-radius:4px 4px 0 0;
-    background:radial-gradient(circle at 50% 45%,#ffffff,#fff3c4); opacity:0;
+  /* 光のすじ（回転） */
+  .esc-rays{
+    position:absolute; inset:-40px; border-radius:50%; opacity:0; pointer-events:none;
+    background:repeating-conic-gradient(from 0deg, rgba(255,247,200,.9) 0deg 8deg, transparent 8deg 20deg);
+    mix-blend-mode:screen;
   }
+  #escScene.open .esc-rays{ opacity:.85; animation:escrays 7s linear infinite; }
+  @keyframes escrays{ to{ transform:rotate(360deg); } }
+  .escLight{
+    position:absolute; inset:6px; border-radius:4px 4px 0 0;
+    background:radial-gradient(circle at 50% 55%,#ffffff,#fff3b0); opacity:0;
+  }
+  #escScene.open .escLight{ opacity:1; transition:opacity 1s ease .3s; }
   .escDoor{
-    position:absolute; inset:7px; border-radius:4px 4px 0 0;
+    position:absolute; inset:6px; border-radius:4px 4px 0 0;
     background:linear-gradient(180deg,#8b5a2b,#6b4220);
-    transform-origin:left center; transition:transform 1.1s ease;
+    transform-origin:left center; transition:transform 1.1s cubic-bezier(.5,0,.3,1); z-index:2;
   }
   .escDoor::after{ content:""; position:absolute; right:12px; top:50%; width:9px; height:9px; border-radius:50%; background:#ffd93d; }
-  #escScene.open .escDoor{ transform:perspective(520px) rotateY(-80deg); }
-  #escScene.open .escLight{ opacity:1; transition:opacity 1.1s ease; }
-  #escWalker{
-    position:absolute; bottom:18px; left:14px; width:64px;
-    transition:transform 2s ease-in, opacity .8s ease 1.4s;
+  #escScene.open .escDoor{ transform:perspective(520px) rotateY(-86deg); }
+  /* 解錠の鍵 */
+  .esc-key{
+    position:absolute; right:6px; top:54%; transform:translateX(40px) scale(0); font-size:30px; z-index:3;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));
   }
-  #escScene.walk #escWalker{ transform:translateX(168px) scale(.5); opacity:0; }
+  #escScene.unlock .esc-key{ animation:esckey 1s ease both; }
+  @keyframes esckey{
+    0%{ transform:translateX(40px) scale(0) rotate(0); opacity:0; }
+    30%{ transform:translateX(0) scale(1) rotate(0); opacity:1; }
+    60%{ transform:translateX(0) scale(1) rotate(-90deg); }    /* カチャッと回す */
+    100%{ transform:translateX(0) scale(0) rotate(-90deg); opacity:0; }
+  }
+
+  #escWalker{
+    position:absolute; bottom:18px; left:16px; width:62px; z-index:1;
+    transition:transform 2.1s cubic-bezier(.45,0,.55,1), opacity .7s ease 1.5s;
+  }
+  #escScene.walk #escWalker{ transform:translateX(150px) scale(.46); opacity:0; }
   #escWalkerInner svg{ display:block; width:100%; height:auto; }
-  #escScene.walk #escWalkerInner{ animation:walkbob .3s ease-in-out infinite; }
-  @keyframes walkbob{ 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-5px) rotate(3deg); } }
-  #escFlash{ position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
-  #escFlash.on{ animation:escflash 1s ease forwards; }
-  @keyframes escflash{ 0%{opacity:0;} 50%{opacity:1;} 100%{opacity:0;} }
+  #escScene.walk #escWalkerInner{ animation:walkbob .32s ease-in-out infinite; }
+  @keyframes walkbob{ 0%{ transform:translateY(0) rotate(-4deg); } 50%{ transform:translateY(-6px) rotate(4deg); } 100%{ transform:translateY(0) rotate(-4deg); } }
+  /* 足もとの影 */
+  .esc-shadow{
+    position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); width:46px; height:10px;
+    background:rgba(0,0,0,.22); border-radius:50%;
+  }
+  #escScene.walk .esc-shadow{ animation:shadowpulse .32s ease-in-out infinite; }
+  @keyframes shadowpulse{ 0%,100%{ transform:translateX(-50%) scale(1); } 50%{ transform:translateX(-50%) scale(.8); opacity:.7; } }
+
+  #escFlash{ position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:4; }
+  #escFlash.on{ animation:escflash 1.1s ease forwards; }
+  @keyframes escflash{ 0%{opacity:0;} 45%{opacity:1;} 100%{opacity:0;} }
+  /* 脱出成功スタンプ */
+  .esc-stamp{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(0) rotate(-18deg);
+    z-index:5; font-size:34px; font-weight:900; color:#e23b3b; white-space:nowrap;
+    padding:8px 18px; border:5px solid #e23b3b; border-radius:12px; background:rgba(255,255,255,.9);
+    text-shadow:0 1px 0 #fff; box-shadow:0 6px 14px rgba(0,0,0,.25); opacity:0;
+  }
+  .esc-stamp.show{ animation:escstamp .6s cubic-bezier(.2,1.4,.4,1) forwards; }
+  @keyframes escstamp{
+    0%{ transform:translate(-50%,-50%) scale(2.4) rotate(-18deg); opacity:0; }
+    60%{ transform:translate(-50%,-50%) scale(.9) rotate(-12deg); opacity:1; }
+    100%{ transform:translate(-50%,-50%) scale(1) rotate(-12deg); opacity:1; }
+  }
 
   #thankyou{
     position:absolute; inset:0; z-index:5; display:flex; flex-direction:column;
@@ -456,7 +510,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.9.1</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.0.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -616,15 +670,27 @@
 
   <!-- ===== 脱出アニメ ＆ Thank you ===== -->
   <div id="escapeScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#ffd98a,#e0922f);">
-    <div class="ministage" style="font-size:22px;">🎉 5つのカギで脱出だ！</div>
+    <div class="ministage" id="escCaption" style="font-size:20px;">🔑 5つのカギで かぎが開く…！</div>
     <div id="escScene">
-      <div class="escWin"></div>
+      <!-- 教室 -->
+      <div class="esc-board"><span>そつぎょう…？</span></div>
+      <div class="escWin" style="left:10px;"></div>
+      <div class="escWin" style="left:78px;"></div>
+      <div class="esc-floor"></div>
+      <!-- ドア -->
       <div class="escDoorFrame">
+        <div class="esc-rays"></div>
         <div class="escLight"></div>
         <div class="escDoor"></div>
+        <div class="esc-key">🔑</div>
       </div>
-      <div id="escWalker"><div id="escWalkerInner"></div></div>
+      <!-- キャラ -->
+      <div id="escWalker">
+        <div class="esc-shadow"></div>
+        <div id="escWalkerInner"></div>
+      </div>
       <div id="escFlash"></div>
+      <div class="esc-stamp" id="escStamp">脱出成功！</div>
     </div>
     <div id="thankyou" class="hidden">
       <div class="ty">Thank you<br>for playing!!!</div>
@@ -1469,21 +1535,28 @@
     else if(n===5) startKanji();
   }
 
-  // 脱出アニメ：ドアが開く → 歩いて出る → 光る → Thank you
+  // 脱出アニメ：解錠→ドアが開く→歩いて出る→脱出成功→Thank you
   function finalWin(){
     state='win';
     stopBGM();
     const scene = document.getElementById('escScene');
-    scene.classList.remove('open','walk');
+    const cap = document.getElementById('escCaption');
+    const stamp = document.getElementById('escStamp');
+    scene.classList.remove('open','walk','unlock','zoom');
+    stamp.classList.remove('show');
     document.getElementById('escFlash').classList.remove('on');
     document.getElementById('thankyou').classList.add('hidden');
     document.getElementById('escWalkerInner').innerHTML = buildStudent(lastIsBoy);
+    cap.textContent = '🔑 5つのカギで かぎが開く…！';
     show('escapeScreen');
-    playWin();                                              // 脱出ファンファーレ
-    setTimeout(()=>{ scene.classList.add('open'); }, 600);   // ① ドアが開く
-    setTimeout(()=>{ scene.classList.add('walk'); }, 1700);  // ② 歩いて教室から出る
-    setTimeout(()=>{ document.getElementById('escFlash').classList.add('on'); }, 3300); // ③ ぴかっ
-    setTimeout(()=>{ showThankYou(); }, 3800);               // ④ Thank you!!!
+
+    setTimeout(()=>{ scene.classList.add('unlock'); playSE(true); }, 500);   // ① カチャッと解錠
+    setTimeout(()=>{ scene.classList.add('open'); cap.textContent='🚪 ドアが開いた！'; }, 1450); // ② ドアが開いて光
+    setTimeout(()=>{ scene.classList.add('walk'); cap.textContent='🏃 教室から脱出！'; }, 2300); // ③ 歩いて出る
+    setTimeout(()=>{ scene.classList.add('zoom'); }, 3000);                  // ④ ドアへ寄る
+    setTimeout(()=>{ document.getElementById('escFlash').classList.add('on'); }, 4200); // ⑤ ぴかっ
+    setTimeout(()=>{ stamp.classList.add('show'); playWin(); cap.textContent='🎉 脱出成功！'; }, 4600); // ⑥ 脱出成功スタンプ＋ファンファーレ
+    setTimeout(()=>{ showThankYou(); }, 6100);                               // ⑦ Thank you!!!
   }
   function showThankYou(){
     const ty = document.getElementById('thankyou');
