@@ -210,29 +210,44 @@
       linear-gradient(180deg,#bfe9ff 0 55%,#9bd6ff 55%);
     border:4px solid #fff; clip-path:polygon(0 0,100% 14%,100% 86%,0 100%);
   }
-  /* ドア（右の壁・パース）＝脱出。枠＋パネル＋取っ手つき */
+  /* ドア（右の壁・パース）。下辺を「右の壁と床の境目」に合わせて立たせる
+     右の壁の床線は(100%,100%)→(67%,50%)。ドアは奥行き x=74%〜90% に配置。
+     箱:left74% top35% w16% h50% の中で、4隅を床線/天井線に合わせてクリップ */
   .r3-door{
-    position:absolute; right:3%; top:21%; width:17%; height:48%;
-    clip-path:polygon(0 12%,100% 0,100% 100%,0 88%);
-    background:linear-gradient(90deg,#5e3a1f,#8a5a32);  /* 奥側=濃い、手前=明るい */
+    position:absolute; left:74%; top:35%; width:16%; height:50%;
+    clip-path:polygon(0 0, 100% 7%, 100% 100%, 0 51%);   /* 奥(左)=低く短い／手前(右)=高く長い */
+    background:linear-gradient(90deg,#5e3a1f,#8a5a32);
   }
-  .r3-door .dframe{ position:absolute; inset:0; clip-path:polygon(0 12%,100% 0,100% 100%,0 88%);
+  .r3-door .dframe{ position:absolute; inset:0;
+    clip-path:polygon(0 0, 100% 7%, 100% 100%, 0 51%);
     box-shadow:inset 0 0 0 4px #4a2e18; }
-  .r3-door .dp{ position:absolute; left:20%; right:16%; background:rgba(0,0,0,.22);
+  .r3-door .dp{ position:absolute; left:24%; right:14%; background:rgba(0,0,0,.22);
     border-top:1px solid rgba(255,255,255,.12); border-radius:2px; }
-  .r3-door .dp.t{ top:14%; height:34%; }
-  .r3-door .dp.b{ top:54%; height:33%; }
-  .r3-door .dk{ position:absolute; left:9%; top:49%; width:8%; height:5%;
+  .r3-door .dp.t{ top:22%; height:30%; }
+  .r3-door .dp.b{ top:58%; height:28%; }
+  .r3-door .dk{ position:absolute; right:13%; top:62%; width:7%; height:4%;
     background:#ffd93d; border-radius:50%; box-shadow:0 0 0 2px #b8860b; }
   /* 天井のライト */
   .r3-light{ position:absolute; left:47%; top:5%; width:6%; height:3%; background:#fff7d0; border-radius:0 0 6px 6px; box-shadow:0 0 14px 4px rgba(255,247,200,.7); }
+  /* 教室の机（床に置いてさみしくないように。手前ほど大きく） */
+  .r3-desk{
+    position:absolute;
+    background:linear-gradient(180deg,#e9c388 0 24%,#d8a866 24% 26%,#caa066 26%);
+    clip-path:polygon(0 0,100% 0,100% 26%,82% 26%,82% 100%,68% 100%,68% 26%,32% 26%,32% 100%,18% 100%,18% 26%,0 26%);
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.22));
+  }
+  .r3-chair{
+    position:absolute; background:linear-gradient(180deg,#9fd0e6 0 40%,#6fb0cc 40%);
+    clip-path:polygon(0 0,100% 0,100% 18%,82% 18%,82% 100%,68% 100%,68% 60%,32% 60%,32% 100%,18% 100%,18% 18%,0 18%);
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));
+  }
   .keybar{
     background:#fff; color:var(--ink); border-radius:999px; padding:7px 16px;
     font-weight:900; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.12);
   }
   .ministage{
-    color:#1f1a29; font-weight:900; font-size:18px;
-    background:rgba(255,255,255,.92); border-radius:999px; padding:5px 16px;
+    color:#1f1a29; font-weight:900; font-size:23px;
+    background:rgba(255,255,255,.95); border-radius:999px; padding:7px 20px;
     box-shadow:0 3px 0 rgba(0,0,0,.12);
   }
   .qcard{
@@ -264,8 +279,8 @@
   .btn.mini.blue{ box-shadow:0 4px 0 #1c91c9; }
 
   /* ③ 都道府県パズル（本物の日本地図） */
-  #mapTarget{ color:#fff; font-weight:900; font-size:20px; text-shadow:0 2px 0 rgba(0,0,0,.2); }
-  #mapTarget #mapName{ color:#ff2b2b; font-size:26px; text-shadow:0 1px 0 #fff,0 2px 2px rgba(0,0,0,.25); }
+  #mapTarget{ color:#1f1a29; font-weight:900; font-size:21px; background:rgba(255,255,255,.95); border-radius:999px; padding:6px 18px; box-shadow:0 3px 0 rgba(0,0,0,.12); }
+  #mapTarget #mapName{ color:#ff2b2b; font-size:27px; }
   #mapBox{ width:100%; max-width:560px; background:#cfeffd; border-radius:12px; box-shadow:0 5px 0 rgba(0,0,0,.12); padding:2px; }
   #mapScreen{ padding-left:0; padding-right:0; gap:6px; }
   #mapBox svg{ display:block; width:100%; height:auto; }
@@ -578,7 +593,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.7.1</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.8.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -674,11 +689,10 @@
   <!-- ===== きろく（過去のランキング） ===== -->
   <div id="recordsScreen" class="screen top room hidden">
     <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 #c47e00,0 8px 12px rgba(0,0,0,.35);">🏆 きろく</div>
-    <div style="color:#1f1a29;font-weight:900;background:rgba(255,255,255,.92);border-radius:999px;padding:5px 16px;box-shadow:0 3px 0 rgba(0,0,0,.12);">はやい順（全ステージクリア）</div>
+    <div style="color:#1f1a29;font-weight:900;background:rgba(255,255,255,.92);border-radius:999px;padding:5px 16px;box-shadow:0 3px 0 rgba(0,0,0,.12);">はやい順 ・ 消したい記録は 🗑 をタップ</div>
     <div id="recordsList" class="rank-list"></div>
     <div style="display:flex;gap:10px;">
       <button class="btn mini" id="recTitleBtn">🏠 タイトル</button>
-      <button class="btn mini blue" id="recClearBtn">🗑 きろくを消す</button>
     </div>
   </div>
 
@@ -792,11 +806,11 @@
   <div id="kanjiScreen" class="screen top room hidden">
     <div class="keybar">🔑 <span id="keys5">4</span>/5 ・ できた漢字 <span id="kanjiDone">0</span>/5 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">⑤ 部首とつくりの組み合わせ</div>
-    <div id="kanjiHint" style="color:#fff;font-weight:900;font-size:15px;">へん と つくり をえらんで漢字を作ろう！</div>
+    <div id="kanjiHint" style="color:#1f1a29;font-weight:900;font-size:16px;background:rgba(255,255,255,.95);border-radius:999px;padding:5px 16px;box-shadow:0 3px 0 rgba(0,0,0,.12);">へん と つくり をえらんで漢字を作ろう！</div>
     <div class="qcard">
       <div id="kanjiBoard" style="display:flex;justify-content:space-around;gap:16px;"></div>
     </div>
-    <div id="kanjiResult" style="color:#fff;font-weight:900;font-size:22px;min-height:26px;"></div>
+    <div id="kanjiResult" style="color:#1f1a29;font-weight:900;font-size:22px;min-height:30px;"></div>
   </div>
 
 </div>
@@ -2179,9 +2193,6 @@
   function openRecords(){ renderRanking(document.getElementById('recordsList'), null, true); show('recordsScreen'); }
   document.getElementById('toRecords').onclick   = openRecords;
   document.getElementById('recTitleBtn').onclick = ()=>show('titleScreen');
-  document.getElementById('recClearBtn').onclick = ()=>{
-    if(confirm('ぜんぶの記録を消しますか？')){ saveRecords([]); renderRanking(document.getElementById('recordsList'), null, true); }
-  };
   if(location.hash==='#test'){ window.__t = {startStage, stageClear, gameOver, get keys(){return keys;}, set keys(v){keys=v;}, get state(){return state;}, get spellWord(){return spellWord;}, get kanjiRound(){return kanjiRound;}, get codeAns(){return codeAns;}}; }
 
   arenaSize();
@@ -2191,7 +2202,13 @@
     + '<div class="r3 r3-right"></div><div class="r3 r3-back"></div><div class="r3 r3-floor"></div>'
     + '<div class="r3-light"></div><div class="r3-board"><span>🔑 ESCAPE</span></div>'
     + '<div class="r3-window"></div>'
-    + '<div class="r3-door"><div class="dframe"></div><div class="dp t"></div><div class="dp b"></div><div class="dk"></div></div>';
+    + '<div class="r3-door"><div class="dframe"></div><div class="dp t"></div><div class="dp b"></div><div class="dk"></div></div>'
+    // 床の机＆椅子（奥ほど小さく）
+    + '<div class="r3-desk" style="left:6%;bottom:13%;width:22%;height:14%;"></div>'
+    + '<div class="r3-chair" style="left:9%;bottom:5%;width:15%;height:9%;"></div>'
+    + '<div class="r3-desk" style="right:6%;bottom:14%;width:20%;height:13%;"></div>'
+    + '<div class="r3-chair" style="right:9%;bottom:6%;width:14%;height:8%;"></div>'
+    + '<div class="r3-desk" style="left:40%;top:62%;width:14%;height:9%;"></div>';
   document.querySelectorAll('.room').forEach(el=>{
     const d=document.createElement('div'); d.className='room3d'; d.innerHTML=ROOM3D;
     el.insertBefore(d, el.firstChild);
