@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脱出ゲーム企画プレゼン</title>
+<style>
+  :root{
+    --bg:#0f1320;
+    --ink:#1b2030;
+    --accent:#e94f37;
+    --accent2:#f6c453;
+    --paper:#fdfaf3;
+    --muted:#6b7280;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+    background:#54585f;
+    color:var(--ink);
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  /* A4 横 = 297mm x 210mm */
+  .slide{
+    width:297mm;
+    height:210mm;
+    background:var(--paper);
+    margin:12mm auto;
+    padding:18mm 20mm;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 10px 40px rgba(0,0,0,.4);
+    display:flex;
+    flex-direction:column;
+  }
+  .slide::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0;
+    width:10mm; background:var(--accent);
+  }
+  .pagenum{
+    position:absolute; right:14mm; bottom:10mm;
+    color:var(--muted); font-size:11pt; letter-spacing:.1em;
+  }
+  .kicker{
+    color:var(--accent); font-weight:800; letter-spacing:.2em;
+    font-size:13pt; margin-bottom:6mm;
+  }
+  h1{font-size:40pt; line-height:1.2; margin-bottom:8mm;}
+  h2{font-size:30pt; line-height:1.25; margin-bottom:10mm; border-bottom:3px solid var(--accent2); padding-bottom:5mm;}
+  p,li{font-size:15pt; line-height:1.8;}
+  ul{padding-left:1.2em; margin-top:4mm;}
+  li{margin-bottom:4mm;}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:10mm; flex:1;}
+  .card{
+    background:#fff; border:2px solid #e7e3d8; border-radius:8px;
+    padding:8mm; display:flex; flex-direction:column;
+  }
+  .card h3{font-size:18pt; color:var(--accent); margin-bottom:4mm;}
+  .big{font-size:60pt; font-weight:800; color:var(--accent);}
+
+  /* 表紙 */
+  .cover{justify-content:center; background:var(--bg); color:#fff;}
+  .cover::before{background:var(--accent2);}
+  .cover .kicker{color:var(--accent2);}
+  .cover h1{font-size:56pt;}
+  .cover .sub{font-size:18pt; color:#cbd5e1; margin-top:6mm;}
+  .cover .meta{position:absolute; bottom:14mm; left:30mm; font-size:13pt; color:#94a3b8;}
+
+  .timeline{list-style:none; padding:0;}
+  .timeline li{
+    display:flex; align-items:flex-start; gap:6mm; margin-bottom:6mm;
+  }
+  .timeline .step{
+    flex:0 0 auto; width:14mm; height:14mm; border-radius:50%;
+    background:var(--accent); color:#fff; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-size:16pt;
+  }
+
+  @media print{
+    body{background:#fff;}
+    .slide{margin:0; box-shadow:none; page-break-after:always;}
+    @page{size:A4 landscape; margin:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. 表紙 -->
+<section class="slide cover">
+  <div class="kicker">PRESENTATION</div>
+  <h1>体験型 脱出ゲーム<br>企画のご提案</h1>
+  <div class="sub">〜 謎を解き、扉を開け、物語を生きる 〜</div>
+  <div class="meta">2026.06.03 ／ 企画担当</div>
+  <div class="pagenum">01</div>
+</section>
+
+<!-- 2. 脱出ゲームとは -->
+<section class="slide">
+  <div class="kicker">OVERVIEW</div>
+  <h2>脱出ゲームとは？</h2>
+  <p>制限時間内にチームで謎を解き、隠されたヒントやアイテムを使って「脱出」を目指す体験型エンターテインメント。</p>
+  <div class="grid" style="margin-top:8mm;">
+    <div class="card"><h3>🧩 謎解き</h3><p>暗号・パズル・仕掛けを組み合わせ、達成感を演出。</p></div>
+    <div class="card"><h3>👥 協力プレイ</h3><p>役割分担とコミュニケーションが攻略のカギ。</p></div>
+    <div class="card"><h3>⏱ 緊張感</h3><p>制限時間が没入感とドラマを生み出す。</p></div>
+    <div class="card"><h3>📖 物語性</h3><p>世界観への没入で記憶に残る体験に。</p></div>
+  </div>
+  <div class="pagenum">02</div>
+</section>
+
+<!-- 3. コンセプト -->
+<section class="slide">
+  <div class="kicker">CONCEPT</div>
+  <h2>企画コンセプト</h2>
+  <div class="grid">
+    <div>
+      <ul>
+        <li><strong>テーマ：</strong>廃病院からの脱出</li>
+        <li><strong>定員：</strong>2〜6名／1チーム</li>
+        <li><strong>制限時間：</strong>60分</li>
+        <li><strong>難易度：</strong>中級（脱出成功率 約30%想定）</li>
+        <li><strong>対象：</strong>20〜40代のグループ・カップル</li>
+      </ul>
+    </div>
+    <div class="card" style="justify-content:center; align-items:center; text-align:center;">
+      <div class="big">60<span style="font-size:24pt;">分</span></div>
+      <p style="margin-top:4mm;">没入と緊張のリミット</p>
+    </div>
+  </div>
+  <div class="pagenum">03</div>
+</section>
+
+<!-- 4. 体験の流れ -->
+<section class="slide">
+  <div class="kicker">FLOW</div>
+  <h2>体験の流れ</h2>
+  <ul class="timeline">
+    <li><span class="step">1</span><div><strong>受付・導入</strong>　ストーリームービーで世界観に没入（10分）</div></li>
+    <li><span class="step">2</span><div><strong>探索フェーズ</strong>　部屋を調べ、ヒントとアイテムを収集</div></li>
+    <li><span class="step">3</span><div><strong>謎解きフェーズ</strong>　集めた手がかりで仕掛けを解く</div></li>
+    <li><span class="step">4</span><div><strong>クライマックス</strong>　最終謎を突破し脱出へ</div></li>
+    <li><span class="step">5</span><div><strong>振り返り</strong>　結果発表・記念撮影（10分）</div></li>
+  </ul>
+  <div class="pagenum">04</div>
+</section>
+
+<!-- 5. まとめ -->
+<section class="slide cover">
+  <div class="kicker">SUMMARY</div>
+  <h1>"解けた瞬間"を、<br>忘れられない体験に。</h1>
+  <div class="sub">謎・協力・物語が一体となった脱出ゲームで、<br>来場者に特別な60分を提供します。</div>
+  <div class="meta">ご清聴ありがとうございました</div>
+  <div class="pagenum">05</div>
+</section>
+
+</body>
+</html>
