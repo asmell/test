@@ -294,6 +294,23 @@
   .key.del{ background:#ffd5d5; }
   .key.open{ background:linear-gradient(180deg,#9be79b,var(--green)); color:#0a4d1a; box-shadow:0 4px 0 #2f9b46; grid-column:span 1; }
 
+  /* ===== けっか画面 ===== */
+  #resultSummary{ color:#fff; font-weight:900; font-size:17px; }
+  #resultList{
+    width:100%; max-width:360px; max-height:48vh; overflow-y:auto;
+    background:#fff; border-radius:14px; padding:8px; box-shadow:0 6px 0 rgba(0,0,0,.18);
+    display:flex; flex-direction:column; gap:4px; -webkit-overflow-scrolling:touch;
+  }
+  .ritem{
+    font-size:14px; font-weight:700; color:var(--ink); padding:7px 9px; border-radius:8px;
+    background:#eef7ee; display:flex; align-items:center; gap:6px; line-height:1.35;
+  }
+  .ritem.ng{ background:#ffe6e6; color:#b53030; }
+  .ritem .rstage{
+    flex:0 0 auto; font-weight:900; background:#fff; border-radius:6px; padding:1px 6px; font-size:12px;
+    box-shadow:0 1px 0 rgba(0,0,0,.12);
+  }
+
   /* ===== カギGET アニメ ===== */
   .kg-stage{ position:relative; width:160px; height:160px; display:flex; align-items:center; justify-content:center; }
   .kg-key{ font-size:96px; animation:kgpop 1s cubic-bezier(.2,1.3,.4,1) both; filter:drop-shadow(0 6px 4px rgba(0,0,0,.3)); }
@@ -391,7 +408,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.6.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.7.0</div>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -452,8 +469,19 @@
   <!-- ===== GAME OVER（時間切れ） ===== -->
   <div id="gameOverScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#5a5a6a,#1c1c26);">
     <div class="pop-title" style="color:#ff5b5b;text-shadow:0 4px 0 #7a1f1f,0 8px 14px rgba(0,0,0,.5);">GAME<br>OVER</div>
-    <div class="bubble">⏱ じかんぎれ…！<br>タイトルにもどります</div>
-    <button class="btn blue" id="toTitleBtn">🏠 タイトルへ</button>
+    <div class="bubble">⏱ じかんぎれ…！</div>
+    <button class="btn blue" id="goResultBtn">📋 けっかを見る</button>
+  </div>
+
+  <!-- ===== けっか（○✕のふりかえり） ===== -->
+  <div id="resultScreen" class="screen top hidden" style="background:radial-gradient(circle at 50% 18%,#8f96a3,#3a3f4a);">
+    <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 #555,0 8px 12px rgba(0,0,0,.4);" id="resultTitle">けっか</div>
+    <div id="resultSummary"></div>
+    <div id="resultList"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn mini blue" id="resReplayBtn">🔁 もう一度</button>
+      <button class="btn mini" id="resTitleBtn">🏠 タイトル</button>
+    </div>
   </div>
 
   <!-- ===== カギGET アニメ（クリアごと） ===== -->
@@ -536,7 +564,10 @@
     </div>
     <div id="thankyou" class="hidden">
       <div class="ty">Thank you<br>for playing!!!</div>
-      <button class="btn" id="escReplay">🔁 もう一度あそぶ</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button class="btn" id="escResultBtn">📋 けっかを見る</button>
+        <button class="btn blue" id="escReplay">🔁 もう一度</button>
+      </div>
     </div>
   </div>
 
@@ -1138,8 +1169,8 @@
         w.el.classList.add('caught');
         const cx = w.x, cy = w.y;
         setTimeout(()=>w.el.remove(), 250);
-        if(w.type==='element') addScore(+1, cx, cy);
-        else                   addScore(-1, cx, cy);  // 化合物・まちがいは -1
+        if(w.type==='element'){ addScore(+1, cx, cy); logResult('①', `${w.name}（単体）を拾った`, true); }
+        else                  { addScore(-1, cx, cy); logResult('①', `${w.name}（化合物）を拾った`, false); }
         continue;
       }
       // 画面下まで来たら取り逃し→消える
@@ -1277,6 +1308,26 @@
   let keys  = 0;     // 集めたカギ
   const TOTAL_STAGES = 5;
 
+  // ===== けっか記録（○✕のふりかえり） =====
+  let resultsLog = [];
+  function logResult(stage, text, ok){ resultsLog.push({stage, text, ok}); }
+  function showResults(header){
+    document.getElementById('resultTitle').textContent = header;
+    const ok = resultsLog.filter(r=>r.ok).length;
+    const ng = resultsLog.length - ok;
+    document.getElementById('resultSummary').innerHTML =
+      `せいかい <b style="color:#7CFC8A">${ok}</b> ・ まちがい <b style="color:#ff8b8b">${ng}</b>`;
+    const list = document.getElementById('resultList');
+    if(resultsLog.length===0){
+      list.innerHTML = '<div class="ritem">まだ記録がないよ</div>';
+    } else {
+      list.innerHTML = resultsLog.map(r=>
+        `<div class="ritem ${r.ok?'':'ng'}"><span class="rstage">${r.stage}</span>${r.ok?'⭕':'❌'} ${r.text}</div>`
+      ).join('');
+    }
+    show('resultScreen');
+  }
+
   // つぎのステージ説明（カギGET画面で表示）
   const STAGE_INFO = {
     2:{emoji:'🔤', title:'ミニゲーム②', desc:'<b style="color:var(--blue);font-size:18px;">えいごスペルならべ</b><br>日本語に合う英単語を作ろう！<br><br>⭐ 6もん せいかい／⏱ 1分'},
@@ -1316,7 +1367,7 @@
     stopBGM();
     playGameOver();                   // しょんぼり下降音
     show('gameOverScreen');
-    setTimeout(()=>{ if(state==='gameover') show('titleScreen'); }, 2600); // 自動でタイトルへ
+    setTimeout(()=>{ if(state==='gameover') showResults('GAME OVER の けっか'); }, 2200); // けっかへ
   }
 
   // ステージのクリア → カギGETアニメ → つぎへ
@@ -1385,12 +1436,14 @@
     }
   }
 
-  // ぜんぶ最初から
-  function restartAll(){
-    keys=0; stage=1;
+  // 1プレイの最初に記録などをリセット
+  function startRun(){
+    keys=0; stage=1; resultsLog=[];
     document.querySelectorAll('.ty-conf').forEach(c=>c.remove());
     show('introScreen');
   }
+  // ぜんぶ最初から
+  function restartAll(){ startRun(); }
 
   // =========================================================
   // ===== ミニゲーム② 英語スペルならべ =====
@@ -1522,12 +1575,14 @@
       const guess = spellInput.map(x=>x.c).join('');
       if(guess === spellWord.en){
         playSE(true);
+        logResult('②', `${spellWord.jp} → ${spellWord.en}`, true);
         spellDoneN++;
         document.getElementById('spellDone').textContent = spellDoneN;
         if(spellDoneN >= SPELL_TARGET){ setTimeout(()=>stageClear(2), 500); return; }
         setTimeout(nextSpell, 500);
       } else {
         playSE(false);
+        logResult('②', `${spellWord.jp}：あなた「${guess}」／正解「${spellWord.en}」`, false);
         const card = document.querySelector('#spellScreen .qcard');
         card.classList.add('shake');
         setTimeout(()=>card.classList.remove('shake'), 350);
@@ -1589,6 +1644,7 @@
     const target = mapQueue[mapDoneN];
     if(g.dataset.jp === target){
       playSE(true);
+      logResult('③', `${target} を見つけた`, true);
       g.classList.add('done');
       mapDoneN++;
       document.getElementById('mapDone').textContent = mapDoneN;
@@ -1596,6 +1652,7 @@
       showMapTarget();
     } else {
       playSE(false);
+      logResult('③', `${target}をさがして→「${g.dataset.jp}」をタップ`, false);
       g.classList.add('wrong');
       setTimeout(()=>g.classList.remove('wrong'), 400);
     }
@@ -1663,10 +1720,12 @@
       if(codeInput.length<CODE_LEN) return;
       if(codeInput===codeAns){
         playSE(true);
+        logResult('④', `金庫の暗号 ${codeAns} せいかい`, true);
         document.getElementById('safe').classList.add('open');
         setTimeout(()=>stageClear(4), 1100);
       } else {
         playSE(false);
+        logResult('④', `暗号：あなた「${codeInput}」／正解「${codeAns}」`, false);
         const s=document.getElementById('safe'); s.classList.add('shake');
         setTimeout(()=>s.classList.remove('shake'), 350);
         codeInput=''; renderCode();
@@ -1753,6 +1812,7 @@
     const pair = kanjiRound.find(p=>p.hen===hen && p.tsu===tsu);
     if(pair){
       playSE(true);
+      logResult('⑤', `${hen}＋${tsu}＝${pair.kanji}`, true);
       kanjiSelHen.classList.add('used'); kanjiSelHen.classList.remove('sel');
       tsuBtn.classList.add('used');
       kanjiSelHen=null;
@@ -1763,18 +1823,22 @@
       if(kanjiDoneN >= KANJI_TARGET){ setTimeout(()=>stageClear(5), 700); }
     } else {
       playSE(false);
+      logResult('⑤', `${hen}＋${tsu} は漢字にならない`, false);
       document.getElementById('kanjiBoard').classList.add('shake');
       setTimeout(()=>document.getElementById('kanjiBoard').classList.remove('shake'), 350);
     }
   }
 
   // ===== ボタン =====
-  document.getElementById('toStage').onclick    = ()=>{ keys=0; stage=1; show('introScreen'); };
-  document.getElementById('startGame').onclick  = ()=>startStage(1);
-  document.getElementById('replayBtn').onclick  = restartAll;
-  document.getElementById('toTitleBtn').onclick = ()=>show('titleScreen');
-  document.getElementById('niStart').onclick    = ()=>startStage(stage);
-  document.getElementById('escReplay').onclick  = restartAll;
+  document.getElementById('toStage').onclick     = startRun;
+  document.getElementById('startGame').onclick   = ()=>startStage(1);
+  document.getElementById('replayBtn').onclick   = restartAll;
+  document.getElementById('niStart').onclick     = ()=>startStage(stage);
+  document.getElementById('escReplay').onclick   = restartAll;
+  document.getElementById('goResultBtn').onclick = ()=>showResults('GAME OVER の けっか');
+  document.getElementById('escResultBtn').onclick= ()=>showResults('クリア！ けっか');
+  document.getElementById('resTitleBtn').onclick = ()=>show('titleScreen');
+  document.getElementById('resReplayBtn').onclick= restartAll;
   if(location.hash==='#test'){ window.__t = {startStage, stageClear, gameOver, get keys(){return keys;}, set keys(v){keys=v;}, get state(){return state;}, get spellWord(){return spellWord;}, get kanjiRound(){return kanjiRound;}, get codeAns(){return codeAns;}}; }
 
   arenaSize();
