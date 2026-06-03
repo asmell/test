@@ -178,27 +178,36 @@
   @keyframes flash{ 0%{opacity:0;} 60%{opacity:1;} 100%{opacity:.85;} }
 
   /* ===== ミニゲーム②③④ 共通 ===== */
-  /* ミニゲーム共通：教室の背景（壁・床・窓・ドア） */
+  /* ミニゲーム共通：教室の背景（はっきりした絵柄：壁・床板・巾木・窓・ドア） */
   .screen.top{
     justify-content:flex-start; padding-top:16px; gap:12px; overflow:hidden;
-    background:
-      linear-gradient(180deg,#eaf6ff 0 60%, #cdab7e 60% 61.5%, #e7cda4 61.5% 100%);
+    background-color:#bfe0a8;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(120,72,28,.45) 0 2px, transparent 2px 46px), /* 床板の線 */
+      linear-gradient(#caa06a,#caa06a),   /* 床 */
+      linear-gradient(#6b4423,#6b4423),   /* 巾木（はばき） */
+      linear-gradient(180deg,#cfe9bd,#bcdfa6);  /* 壁 */
+    background-repeat:no-repeat;
+    background-size: 100% 32%, 100% 32%, 100% 8px, 100% 100%;
+    background-position: bottom, bottom, left calc(68% - 8px), top;
   }
   .screen.top > *{ position:relative; z-index:1; }   /* 中身は背景より前に */
-  .screen.top::before{   /* 窓（左） */
-    content:""; position:absolute; left:12px; top:42px; width:64px; height:84px; z-index:0; opacity:.5;
+  .screen.top::before{   /* 窓（左）：白枠＋十字さん */
+    content:""; position:absolute; left:12px; top:40px; width:70px; height:90px; z-index:0;
     background:
-      linear-gradient(180deg,#bfe9ff,#8fd2ff);
-    border:6px solid #fff; border-radius:6px;
-    box-shadow:0 4px 0 rgba(0,0,0,.12);
+      linear-gradient(#fff,#fff) center/100% 5px no-repeat,
+      linear-gradient(#fff,#fff) center/5px 100% no-repeat,
+      linear-gradient(180deg,#bfe9ff 0 55%, #9bd6ff 55% 100%);
+    border:5px solid #fff; border-radius:4px;
+    box-shadow:0 4px 0 rgba(0,0,0,.18), inset 0 0 0 2px #cfe9ff;
   }
   .screen.top::after{    /* ドア（右）＝脱出の世界観 */
-    content:""; position:absolute; right:12px; top:36px; width:58px; height:114px; z-index:0; opacity:.5;
+    content:""; position:absolute; right:12px; top:30px; width:62px; height:130px; z-index:0;
     background:
-      radial-gradient(circle at 11px 60px,#ffd93d 0 4px,transparent 5px),
-      linear-gradient(180deg,#9c6b3f,#7a4f2b);
-    border:4px solid #6b4220; border-radius:5px;
-    box-shadow:0 4px 0 rgba(0,0,0,.15);
+      radial-gradient(circle at 12px 66px,#ffd93d 0 4px, transparent 5px),  /* ノブ */
+      linear-gradient(180deg,#a4744a,#7a4f2b);
+    border:5px solid #5b3c20; border-radius:5px 5px 0 0;
+    box-shadow:0 4px 0 rgba(0,0,0,.22), inset 0 0 0 5px rgba(0,0,0,.12);
   }
   .keybar{
     background:#fff; color:var(--ink); border-radius:999px; padding:7px 16px;
@@ -510,7 +519,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.1.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.2.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
