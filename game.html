@@ -126,24 +126,54 @@
   .word.caught{ animation:pop .25s ease forwards; }
   @keyframes pop{ to{ transform:scale(1.6); opacity:0; } }
 
-  /* キャラクター */
+  /* キャラクター（全身の学生） */
   #player{ position:absolute; bottom:6px; width:96px; z-index:15; text-align:center; }
-  #player .face{ font-size:46px; line-height:1; margin-top:2px; filter:drop-shadow(0 3px 2px rgba(0,0,0,.25)); }
-  /* 体（服） */
+  /* 制服の色：男の子＝紺、女の子＝赤（クラスで切替） */
+  #player.boy  { --uni:#2f3e6b; --uni2:#24305a; }
+  #player.girl { --uni:#e0566b; --uni2:#c5384a; }
+  #player .face{ font-size:44px; line-height:1; margin-top:2px; filter:drop-shadow(0 3px 2px rgba(0,0,0,.25)); }
+
+  /* 体（制服の上着） */
   #player .body{
-    position:relative; width:58px; height:40px; margin:-8px auto 0;
-    background:linear-gradient(180deg,#5ec5ff,#37a8ef);
-    border-radius:18px 18px 10px 10px;
-    box-shadow:inset 0 5px 0 rgba(255,255,255,.25), 0 3px 2px rgba(0,0,0,.2);
+    position:relative; width:54px; height:44px; margin:-6px auto 0;
+    background:linear-gradient(180deg,var(--uni),var(--uni2));
+    border-radius:16px 16px 8px 8px;
+    box-shadow:inset 0 5px 0 rgba(255,255,255,.12), 0 3px 2px rgba(0,0,0,.2);
+  }
+  /* 白いえり */
+  #player .body::before{
+    content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:0; height:0; border-left:11px solid transparent; border-right:11px solid transparent;
+    border-top:14px solid #fff;
+  }
+  /* ネクタイ */
+  #player .body::after{
+    content:""; position:absolute; top:6px; left:50%; transform:translateX(-50%);
+    width:6px; height:16px; background:var(--yellow); border-radius:2px;
   }
   /* 両うで */
-  #player .body::before, #player .body::after{
-    content:""; position:absolute; top:4px; width:14px; height:30px;
-    background:linear-gradient(180deg,#5ec5ff,#37a8ef);
-    border-radius:8px; box-shadow:0 3px 2px rgba(0,0,0,.15);
+  #player .arm{
+    position:absolute; top:92px; width:13px; height:28px;
+    background:linear-gradient(180deg,var(--uni),var(--uni2));
+    border-radius:7px; box-shadow:0 3px 2px rgba(0,0,0,.15);
   }
-  #player .body::before{ left:-11px; transform:rotate(8deg); }
-  #player .body::after{ right:-11px; transform:rotate(-8deg); }
+  #player .arm.l{ left:9px;  transform:rotate(10deg); }
+  #player .arm.r{ right:9px; transform:rotate(-10deg); }
+  /* 足（2本） */
+  #player .legs{ position:relative; width:54px; height:26px; margin:0 auto; }
+  #player .legs::before, #player .legs::after{
+    content:""; position:absolute; top:0; width:16px; height:22px;
+    background:linear-gradient(180deg,#f3c89a,#e6b07e); border-radius:7px 7px 4px 4px;
+  }
+  #player .legs::before{ left:9px; }
+  #player .legs::after{ right:9px; }
+  /* くつ */
+  #player .shoe{
+    position:absolute; bottom:-3px; width:20px; height:9px;
+    background:#3a2e2e; border-radius:6px 8px 6px 6px;
+  }
+  #player .shoe.l{ left:7px; }
+  #player .shoe.r{ right:7px; }
   #player .basket{
     position:relative; width:96px; height:42px; margin:0 auto;
     background:linear-gradient(180deg,#e8a96b,#c47e3e);
@@ -211,7 +241,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v1.6.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v1.7.0</div>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -253,6 +283,12 @@
       <div class="basket"></div>
       <div class="face" id="face">🧒</div>
       <div class="body"></div>
+      <div class="arm l"></div>
+      <div class="arm r"></div>
+      <div class="legs">
+        <div class="shoe l"></div>
+        <div class="shoe r"></div>
+      </div>
     </div>
 
     <div id="pad">
@@ -365,8 +401,11 @@
     scoreEl.textContent = '0';
     updateTime();
     timePill.classList.remove('warn');
-    // キャラはランダムで男の子/女の子
-    face.textContent = Math.random()<0.5 ? '👦' : '👧';
+    // キャラはランダムで男の子/女の子（学生）
+    const isBoy = Math.random()<0.5;
+    face.textContent = isBoy ? '👦' : '👧';
+    player.classList.toggle('boy', isBoy);
+    player.classList.toggle('girl', !isBoy);
     playerX = arena.w/2;
     positionPlayer();
     show('game');
