@@ -510,7 +510,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.0.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.1.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -1008,41 +1008,57 @@
 
   // ===== 学生イラスト（SVG）を組み立て =====
   function buildStudent(isBoy){
-    const uni  = isBoy ? '#3a4d86' : '#e85d73';   // 制服（明）
-    const uni2 = isBoy ? '#26345e' : '#c43f55';   // 制服（影）
-    const hair = isBoy ? '#4a3322' : '#5a3a24';   // 髪（明）
-    const hairD= isBoy ? '#33220f' : '#3e2614';   // 髪（影）
+    const uid = '_'+(Math.random()*1e9|0).toString(36);  // グラデIDの衝突よけ
+    const uni  = isBoy ? '#41568f' : '#ec6379';   // 制服（明）
+    const uni2 = isBoy ? '#283a66' : '#c8415a';   // 制服（影）
+    const hair = isBoy ? '#5a4030' : '#6b4428';   // 髪（明）
+    const hairD= isBoy ? '#3a2718' : '#46291660'.slice(0,7);   // 髪（影）
 
-    // 後ろ髪（女の子だけ長い）
+    // 後ろ髪（女の子は長い）
     const hairBack = isBoy ? '' :
-      `<path d="M24 38 Q18 80 28 102 L37 98 Q31 66 34 42 Z" fill="${hairD}"/>
-       <path d="M72 38 Q78 80 68 102 L59 98 Q65 66 62 42 Z" fill="${hairD}"/>`;
-    // 前髪・頭の髪
+      `<path d="M22 40 Q14 84 26 108 L40 104 Q30 70 33 44 Z" fill="${hairD}"/>
+       <path d="M74 40 Q82 84 70 108 L56 104 Q66 70 63 44 Z" fill="${hairD}"/>
+       <path d="M24 44 Q18 80 28 102 L33 100 Q26 72 31 46 Z" fill="#000" opacity=".12"/>`;
+
+    // 前髪・髪のかたまり
     const hairTop = isBoy
-      ? `<path d="M27 42 Q24 16 48 15 Q72 16 69 42 Q63 31 55 31 Q51 25 48 29 Q45 25 41 31 Q33 31 27 42 Z" fill="${hair}"/>`
-      : `<path d="M26 46 Q22 15 48 14 Q74 15 70 46 Q65 31 57 30 L55 24 Q48 19 41 24 L39 30 Q31 31 26 46 Z" fill="${hair}"/>
-         <path d="M26 46 Q30 33 38 31 Q34 40 35 48 Z" fill="${hairD}"/>
-         <path d="M70 46 Q66 33 58 31 Q62 40 61 48 Z" fill="${hairD}"/>`;
-    // リボン（女の子）／ネクタイ（男の子）
+      ? `<path d="M25 45 Q22 16 48 14 Q74 16 71 45 Q67 31 59 29 Q54 23 48 26 Q42 23 37 29 Q29 31 25 45 Z" fill="url(#hairG)"/>
+         <path d="M48 26 Q45 37 40 43 Q47 36 49 28 Z" fill="${hairD}"/>
+         <path d="M60 30 Q63 38 60 45 Q57 37 56 31 Z" fill="${hairD}"/>
+         <path d="M34 27 Q45 21 57 25 Q46 24 37 31 Z" fill="#fff" opacity=".16"/>`
+      : `<path d="M24 47 Q20 15 48 13 Q76 15 72 47 Q68 31 59 29 L57 23 Q48 18 39 23 L37 29 Q28 31 24 47 Z" fill="url(#hairG)"/>
+         <path d="M24 47 Q29 32 39 30 Q34 41 35 49 Z" fill="${hairD}"/>
+         <path d="M72 47 Q67 32 57 30 Q62 41 61 49 Z" fill="${hairD}"/>
+         <path d="M44 28 Q46 38 42 45 Q47 37 47 29 Z" fill="${hairD}" opacity=".7"/>
+         <path d="M34 25 Q46 19 60 24 Q47 23 37 30 Z" fill="#fff" opacity=".18"/>`;
+
     const tie = isBoy
-      ? `<path d="M48 70 l-4 4 4 16 4-16 z" fill="#d33b3b"/>`
-      : `<path d="M40 72 l8 4 -8 4 z" fill="#ffd93d"/>
-         <path d="M56 72 l-8 4 8 4 z" fill="#ffd93d"/>
-         <circle cx="48" cy="76" r="3" fill="#ffb03d"/>`;
-    // 下半身：男の子＝ズボン／女の子＝スカート
+      ? `<path d="M48 69 l-4.5 4 1.5 16 3 4 3-4 1.5-16 z" fill="#d23b3b"/>
+         <path d="M48 69 l-4.5 4 4.5 3 4.5-3 z" fill="#b32f2f"/>`
+      : `<path d="M39 71 l9 4.5 -9 4.5 1-4.5 z" fill="#ffd93d"/>
+         <path d="M57 71 l-9 4.5 9 4.5 -1-4.5 z" fill="#ffd93d"/>
+         <circle cx="48" cy="75.5" r="3.2" fill="#ffb73d"/>`;
+
     const bottom = isBoy
-      ? `<path d="M35 108 L61 108 L60 132 L51 132 L50 116 L46 116 L45 132 L36 132 Z" fill="#2b2b40"/>`
-      : `<path d="M32 106 L64 106 L70 130 L26 130 Z" fill="${uni2}"/>
-         <path d="M48 106 L48 130 M40 107 L37 129 M56 107 L59 129" stroke="rgba(0,0,0,.18)" stroke-width="1.2" fill="none"/>`;
+      ? `<path d="M34 108 L62 108 L61 134 L51 134 L50 117 L46 117 L45 134 L35 134 Z" fill="#283050"/>
+         <path d="M48 109 L48 133" stroke="#000" stroke-width="1" opacity=".2"/>`
+      : `<path d="M31 106 L65 106 L72 132 L24 132 Z" fill="${uni2}"/>
+         <path d="M48 106 L48 132 M40 107 L36 131 M56 107 L60 131" stroke="#000" stroke-width="1.1" opacity=".18" fill="none"/>`;
 
     return `<svg viewBox="0 0 96 150" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#ffe0c2"/><stop offset="1" stop-color="#f1c096"/>
-        </linearGradient>
+        <radialGradient id="skin" cx="45%" cy="38%" r="70%">
+          <stop offset="0" stop-color="#ffe7cf"/><stop offset="1" stop-color="#f2c39c"/>
+        </radialGradient>
         <linearGradient id="uniG" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="${uni}"/><stop offset="1" stop-color="${uni2}"/>
         </linearGradient>
+        <linearGradient id="hairG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="${hair}"/><stop offset="1" stop-color="${hairD}"/>
+        </linearGradient>
+        <radialGradient id="iris" cx="50%" cy="35%" r="75%">
+          <stop offset="0" stop-color="#9a6a3a"/><stop offset="1" stop-color="#4b2f18"/>
+        </radialGradient>
       </defs>
 
       ${hairBack}
@@ -1050,47 +1066,74 @@
       <!-- 足 -->
       <rect x="38" y="118" width="8" height="22" rx="4" fill="url(#skin)"/>
       <rect x="50" y="118" width="8" height="22" rx="4" fill="url(#skin)"/>
+      <rect x="44" y="118" width="2" height="22" fill="#000" opacity=".08"/>
       <!-- くつ -->
-      <path d="M34 138 h12 v5 q0 3-3 3 h-9 q-3 0-3-3 z" fill="#3a2e2e"/>
-      <path d="M50 138 h12 q3 0 3 3 v2 q0 3-3 3 h-12 z" fill="#3a2e2e"/>
+      <path d="M34 138 h12 v5 q0 3-3 3 h-9 q-3 0-3-3 z" fill="#39302b"/>
+      <path d="M50 138 h12 q3 0 3 3 v2 q0 3-3 3 h-12 z" fill="#39302b"/>
 
       ${bottom}
 
-      <!-- 胴（制服） -->
-      <path d="M30 74 Q48 66 66 74 L64 110 Q48 116 32 110 Z" fill="url(#uniG)"/>
+      <!-- 胴（制服の上着） -->
+      <path d="M29 75 Q48 66 67 75 L65 112 Q48 118 31 112 Z" fill="url(#uniG)"/>
+      <!-- 上着の合わせ・影 -->
+      <path d="M48 78 L48 114" stroke="#000" stroke-width="1.4" opacity=".18"/>
+      <path d="M40 70 L48 80 L40 84 Z" fill="#fff" opacity=".95"/>
+      <path d="M56 70 L48 80 L56 84 Z" fill="#fff" opacity=".95"/>
+      <circle cx="48" cy="98" r="1.4" fill="#fff" opacity=".5"/>
+      <circle cx="48" cy="106" r="1.4" fill="#fff" opacity=".5"/>
 
-      <!-- 首 -->
-      <rect x="43" y="58" width="10" height="12" rx="3" fill="#f1c096"/>
-      <!-- えり（白） -->
-      <path d="M40 70 L48 78 L56 70 L52 68 L48 72 L44 68 Z" fill="#fff"/>
+      <!-- 首＋影 -->
+      <rect x="43" y="58" width="10" height="11" rx="3" fill="#f2c39c"/>
+      <path d="M43 60 Q48 64 53 60 L53 63 Q48 66 43 63 Z" fill="#000" opacity=".12"/>
       ${tie}
 
       <!-- 頭 -->
-      <ellipse cx="29" cy="44" rx="4" ry="6" fill="url(#skin)"/>
-      <ellipse cx="67" cy="44" rx="4" ry="6" fill="url(#skin)"/>
+      <ellipse cx="29" cy="45" rx="3.6" ry="5.4" fill="url(#skin)"/>
+      <ellipse cx="67" cy="45" rx="3.6" ry="5.4" fill="url(#skin)"/>
       <ellipse cx="48" cy="42" rx="20" ry="22" fill="url(#skin)"/>
+      <!-- ほほ・あごの陰 -->
+      <path d="M30 50 Q33 62 48 64 Q63 62 66 50 Q60 60 48 60 Q36 60 30 50 Z" fill="#e0a878" opacity=".35"/>
 
-      <!-- 顔 -->
-      <path d="M37 38 q4 -3 8 0" stroke="${hairD}" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M51 38 q4 -3 8 0" stroke="${hairD}" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <ellipse cx="41" cy="46" rx="3.2" ry="4" fill="#3a2e2e"/>
-      <ellipse cx="55" cy="46" rx="3.2" ry="4" fill="#3a2e2e"/>
-      <circle cx="42.2" cy="44.6" r="1.1" fill="#fff"/>
-      <circle cx="56.2" cy="44.6" r="1.1" fill="#fff"/>
-      <path d="M46 51 q2 2 4 0" stroke="#c98b66" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-      <path d="M43 56 q5 4 10 0" stroke="#b5503c" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <circle cx="35" cy="52" r="3.5" fill="#ff9aa6" opacity=".55"/>
-      <circle cx="61" cy="52" r="3.5" fill="#ff9aa6" opacity=".55"/>
+      <!-- 眉 -->
+      <path d="M35.5 40.5 Q40 38.4 44.5 40.4" stroke="${hairD}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M51.5 40.4 Q56 38.4 60.5 40.5" stroke="${hairD}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+      <!-- 目（大きめアニメ目） -->
+      <ellipse cx="40" cy="48.5" rx="4.4" ry="5.8" fill="#fff"/>
+      <ellipse cx="56" cy="48.5" rx="4.4" ry="5.8" fill="#fff"/>
+      <ellipse cx="40.3" cy="49" rx="3.4" ry="4.8" fill="url(#iris)"/>
+      <ellipse cx="55.7" cy="49" rx="3.4" ry="4.8" fill="url(#iris)"/>
+      <ellipse cx="40.3" cy="49.4" rx="1.7" ry="2.5" fill="#221913"/>
+      <ellipse cx="55.7" cy="49.4" rx="1.7" ry="2.5" fill="#221913"/>
+      <circle cx="38.8" cy="46.8" r="1.7" fill="#fff"/>
+      <circle cx="54.2" cy="46.8" r="1.7" fill="#fff"/>
+      <circle cx="41.8" cy="50.8" r="0.9" fill="#fff" opacity=".85"/>
+      <circle cx="57.2" cy="50.8" r="0.9" fill="#fff" opacity=".85"/>
+      <!-- 上まぶた（まつ毛） -->
+      <path d="M35 45 Q40 42 45 44.8" stroke="#3a2a20" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path d="M51 44.8 Q56 42 61 45" stroke="#3a2a20" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path d="M35 45 l-1.8 -1" stroke="#3a2a20" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M61 45 l1.8 -1" stroke="#3a2a20" stroke-width="1.6" stroke-linecap="round"/>
+
+      <!-- 鼻・口 -->
+      <path d="M47.3 51.6 q1 1.4 1.8 0.2" stroke="#d49a72" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M44.5 56.4 Q48 59.4 51.5 56.4" stroke="#bd5a48" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+      <!-- ほっぺ -->
+      <ellipse cx="35.5" cy="53.5" rx="3.4" ry="2.3" fill="#ff97a4" opacity=".5"/>
+      <ellipse cx="60.5" cy="53.5" rx="3.4" ry="2.3" fill="#ff97a4" opacity=".5"/>
 
       ${hairTop}
+      <!-- おでこの髪かげ -->
+      <path d="M28 44 Q48 33 68 44 Q48 39 28 44 Z" fill="#000" opacity=".07"/>
 
       <!-- 頭の上に上げた腕（籠を支える） -->
       <path d="M32 80 Q18 56 16 22 L24 20 Q30 54 40 76 Z" fill="url(#uniG)"/>
       <path d="M64 80 Q78 56 80 22 L72 20 Q66 54 56 76 Z" fill="url(#uniG)"/>
+      <path d="M33 78 Q22 56 20 26 L23 25 Q26 54 38 76 Z" fill="#000" opacity=".12"/>
       <!-- 手 -->
       <circle cx="20" cy="17" r="6" fill="url(#skin)"/>
       <circle cx="76" cy="17" r="6" fill="url(#skin)"/>
-    </svg>`;
+    </svg>`.replace(/(skin|uniG|hairG|iris)/g, '$1'+uid);
   }
 
   // ===== 画面遷移 =====
