@@ -178,37 +178,48 @@
   @keyframes flash{ 0%{opacity:0;} 60%{opacity:1;} 100%{opacity:.85;} }
 
   /* ===== ミニゲーム②③④ 共通 ===== */
-  /* ミニゲーム共通：教室の背景（はっきりした絵柄：壁・床板・巾木・窓・ドア） */
-  .screen.top{
-    justify-content:flex-start; padding-top:16px; gap:12px; overflow:hidden;
-    background-color:#bfe0a8;
-    background-image:
-      repeating-linear-gradient(90deg, rgba(120,72,28,.45) 0 2px, transparent 2px 46px), /* 床板の線 */
-      linear-gradient(#caa06a,#caa06a),   /* 床 */
-      linear-gradient(#6b4423,#6b4423),   /* 巾木（はばき） */
-      linear-gradient(180deg,#cfe9bd,#bcdfa6);  /* 壁 */
-    background-repeat:no-repeat;
-    background-size: 100% 32%, 100% 32%, 100% 8px, 100% 100%;
-    background-position: bottom, bottom, left calc(68% - 8px), top;
-  }
-  .screen.top > *{ position:relative; z-index:1; }   /* 中身は背景より前に */
-  .screen.top::before{   /* 窓（左）：白枠＋十字さん */
-    content:""; position:absolute; left:12px; top:40px; width:70px; height:90px; z-index:0;
+  /* 教室の背景（3D・奥行きパース）＝待機画面とミニゲーム共通 */
+  .room{ overflow:hidden; }
+  .screen.top{ justify-content:flex-start; padding-top:16px; gap:12px; }
+  .room3d{ position:absolute; inset:0; z-index:-1; overflow:hidden; }  /* 中身より後ろ */
+  .room3d .r3{ position:absolute; inset:0; }
+  .r3-ceiling{ background:linear-gradient(180deg,#eef6e7,#e2eed7); clip-path:polygon(0 0,100% 0,67% 22%,33% 22%); }
+  .r3-left{ background:linear-gradient(90deg,#a4cb8a,#c4e1ae); clip-path:polygon(0 0,33% 22%,33% 50%,0 100%); }
+  .r3-right{ background:linear-gradient(90deg,#c4e1ae,#a4cb8a); clip-path:polygon(100% 0,67% 22%,67% 50%,100% 100%); }
+  .r3-back{ background:linear-gradient(180deg,#d3ecc2,#c3e3ad); clip-path:polygon(33% 22%,67% 22%,67% 50%,33% 50%); }
+  .r3-floor{
+    clip-path:polygon(33% 50%,67% 50%,100% 100%,0 100%);
     background:
-      linear-gradient(#fff,#fff) center/100% 5px no-repeat,
-      linear-gradient(#fff,#fff) center/5px 100% no-repeat,
-      linear-gradient(180deg,#bfe9ff 0 55%, #9bd6ff 55% 100%);
-    border:5px solid #fff; border-radius:4px;
-    box-shadow:0 4px 0 rgba(0,0,0,.18), inset 0 0 0 2px #cfe9ff;
+      conic-gradient(from 200deg at 50% 38%, transparent 0 1.4deg, rgba(90,55,20,.25) 1.4deg 2.1deg, transparent 2.1deg 7deg),
+      linear-gradient(180deg,#ccA46a 0%,#b3823f 100%);
   }
-  .screen.top::after{    /* ドア（右）＝脱出の世界観 */
-    content:""; position:absolute; right:12px; top:30px; width:62px; height:130px; z-index:0;
+  /* 黒板（奥の壁） */
+  .r3-board{
+    position:absolute; left:36%; top:26%; width:28%; height:17%;
+    background:linear-gradient(180deg,#2f6b4f,#234f3c); border:5px solid #c9905a; border-radius:4px;
+    box-shadow:inset 0 0 14px rgba(0,0,0,.35), 0 3px 0 #a06e3c;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .r3-board span{ color:#eafff1; font-weight:900; font-size:12px; letter-spacing:1px; opacity:.92; }
+  /* 窓（左の壁・パース） */
+  .r3-window{
+    position:absolute; left:3.5%; top:24%; width:16%; height:36%;
     background:
-      radial-gradient(circle at 12px 66px,#ffd93d 0 4px, transparent 5px),  /* ノブ */
-      linear-gradient(180deg,#a4744a,#7a4f2b);
-    border:5px solid #5b3c20; border-radius:5px 5px 0 0;
-    box-shadow:0 4px 0 rgba(0,0,0,.22), inset 0 0 0 5px rgba(0,0,0,.12);
+      linear-gradient(#fff,#fff) center/100% 4px no-repeat,
+      linear-gradient(#fff,#fff) center/4px 100% no-repeat,
+      linear-gradient(180deg,#bfe9ff 0 55%,#9bd6ff 55%);
+    border:4px solid #fff; clip-path:polygon(0 0,100% 14%,100% 86%,0 100%);
   }
+  /* ドア（右の壁・パース）＝脱出 */
+  .r3-door{
+    position:absolute; right:3.5%; top:23%; width:15%; height:42%;
+    background:
+      radial-gradient(circle at 20% 52%,#ffd93d 0 4.5px,transparent 5.5px),
+      linear-gradient(90deg,#74492a,#9c6b3f);
+    border:4px solid #54371e; clip-path:polygon(0 14%,100% 0,100% 100%,0 86%);
+  }
+  /* 天井のライト */
+  .r3-light{ position:absolute; left:47%; top:5%; width:6%; height:3%; background:#fff7d0; border-radius:0 0 6px 6px; box-shadow:0 0 14px 4px rgba(255,247,200,.7); }
   .keybar{
     background:#fff; color:var(--ink); border-radius:999px; padding:7px 16px;
     font-weight:900; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.12);
@@ -496,7 +507,7 @@
 <div id="app">
 
   <!-- ===== タイトル ===== -->
-  <div id="titleScreen" class="screen">
+  <div id="titleScreen" class="screen room">
     <!-- いろんな教科の絵文字（理科・算数・英語・社会・国語・音楽…） -->
     <span class="floaty" style="left:8%;top:8%;">🧪</span>
     <span class="floaty" style="right:9%;top:7%;animation-delay:1.2s;">📐</span>
@@ -525,11 +536,11 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.3.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.4.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
-  <div id="charSelect" class="screen hidden" style="background:radial-gradient(circle at 50% 25%,#7ed0ff,#3a8fd6);">
+  <div id="charSelect" class="screen room hidden">
     <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 #1c6fae,0 8px 12px rgba(0,0,0,.3);">キャラを<br>えらぼう</div>
     <div class="char-choices">
       <button class="char-btn" data-g="boy">
@@ -545,7 +556,7 @@
   </div>
 
   <!-- ===== ステージ説明 ===== -->
-  <div id="introScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#ff9e7a,#d6553a);">
+  <div id="introScreen" class="screen room hidden">
     <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 var(--purple),0 8px 12px rgba(0,0,0,.3);">ミニゲーム①</div>
     <div class="bubble">
       <div style="font-size:22px;color:var(--purple);margin-bottom:6px;">🧺 単語拾いゲーム</div>
@@ -607,7 +618,7 @@
   </div>
 
   <!-- ===== けっか（○✕のふりかえり） ===== -->
-  <div id="resultScreen" class="screen top hidden" style="background:radial-gradient(circle at 50% 18%,#8f96a3,#3a3f4a);">
+  <div id="resultScreen" class="screen top room hidden">
     <div class="pop-title" style="font-size:8vw;text-shadow:0 4px 0 #555,0 8px 12px rgba(0,0,0,.4);" id="resultTitle">けっか</div>
     <div id="resultSummary"></div>
     <div id="resultList"></div>
@@ -618,7 +629,7 @@
   </div>
 
   <!-- ===== カギGET アニメ（クリアごと） ===== -->
-  <div id="keyGet" class="screen hidden" style="background:radial-gradient(circle at 50% 42%,#ffe7a0,#e0a92f);">
+  <div id="keyGet" class="screen room hidden">
     <div class="kg-stage">
       <span class="kg-spark" style="--a:-70px;--b:-50px;">✨</span>
       <span class="kg-spark" style="--a:70px;--b:-55px;animation-delay:.1s;">✨</span>
@@ -632,7 +643,7 @@
   </div>
 
   <!-- ===== カギGET ＆ つぎのステージ説明（共通） ===== -->
-  <div id="nextIntro" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#b39cf7,#7c5fd6);">
+  <div id="nextIntro" class="screen room hidden">
     <div style="font-size:60px;" id="niEmoji">🔑</div>
     <div class="pop-title" style="font-size:7vw;text-shadow:0 4px 0 var(--purple),0 8px 12px rgba(0,0,0,.3);" id="niTitle">ミニゲーム②</div>
     <div class="bubble" id="niDesc">せつめい</div>
@@ -641,7 +652,7 @@
   </div>
 
   <!-- ===== ミニゲーム② 英語スペル並べ ===== -->
-  <div id="spellScreen" class="screen top hidden">
+  <div id="spellScreen" class="screen top room hidden">
     <div class="keybar">🔑 <span id="keys2">1</span>/5 ・ といた数 <span id="spellDone">0</span>/6 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">② えいごスペルならべ</div>
     <div class="qcard">
@@ -656,7 +667,7 @@
   </div>
 
   <!-- ===== ミニゲーム③ 都道府県パズル ===== -->
-  <div id="mapScreen" class="screen top hidden">
+  <div id="mapScreen" class="screen top room hidden">
     <div class="keybar">🔑 <span id="keys3">2</span>/5 ・ 見つけた数 <span id="mapDone">0</span>/8 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">③ 都道府県パズル</div>
     <div id="mapTarget">「<span id="mapName">北海道</span>」をタップ！</div>
@@ -664,7 +675,7 @@
   </div>
 
   <!-- ===== ミニゲーム④ 金庫の暗号をとく ===== -->
-  <div id="lockScreen" class="screen top hidden">
+  <div id="lockScreen" class="screen top room hidden">
     <div class="keybar">🔑 <span id="keys4">3</span>/5 ・ 金庫の暗号 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">④ 金庫の暗号をとけ！</div>
     <div id="clueCard">
@@ -717,7 +728,7 @@
   </div>
 
   <!-- ===== ミニゲーム⑤ 部首とつくりの組み合わせ ===== -->
-  <div id="kanjiScreen" class="screen top hidden">
+  <div id="kanjiScreen" class="screen top room hidden">
     <div class="keybar">🔑 <span id="keys5">4</span>/5 ・ できた漢字 <span id="kanjiDone">0</span>/5 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">⑤ 部首とつくりの組み合わせ</div>
     <div id="kanjiHint" style="color:#fff;font-weight:900;font-size:15px;">へん と つくり をえらんで漢字を作ろう！</div>
@@ -2043,6 +2054,16 @@
   if(location.hash==='#test'){ window.__t = {startStage, stageClear, gameOver, get keys(){return keys;}, set keys(v){keys=v;}, get state(){return state;}, get spellWord(){return spellWord;}, get kanjiRound(){return kanjiRound;}, get codeAns(){return codeAns;}}; }
 
   arenaSize();
+
+  // 3D教室の背景を各画面に差し込む
+  const ROOM3D = '<div class="r3 r3-ceiling"></div><div class="r3 r3-left"></div>'
+    + '<div class="r3 r3-right"></div><div class="r3 r3-back"></div><div class="r3 r3-floor"></div>'
+    + '<div class="r3-light"></div><div class="r3-board"><span>🔑 ESCAPE</span></div>'
+    + '<div class="r3-window"></div><div class="r3-door"></div>';
+  document.querySelectorAll('.room').forEach(el=>{
+    const d=document.createElement('div'); d.className='room3d'; d.innerHTML=ROOM3D;
+    el.insertBefore(d, el.firstChild);
+  });
 
   // QRコード生成
   new QRCode(document.getElementById('qrcode'), {
