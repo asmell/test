@@ -215,7 +215,8 @@
   /* ③ 都道府県パズル（本物の日本地図） */
   #mapTarget{ color:#fff; font-weight:900; font-size:20px; text-shadow:0 2px 0 rgba(0,0,0,.2); }
   #mapTarget #mapName{ color:#fff62b; font-size:24px; }
-  #mapBox{ width:100%; max-width:340px; background:#cfeffd; border-radius:16px; box-shadow:0 6px 0 rgba(0,0,0,.12); padding:8px; }
+  #mapBox{ width:100%; max-width:520px; background:#cfeffd; border-radius:16px; box-shadow:0 6px 0 rgba(0,0,0,.12); padding:6px; }
+  #mapScreen{ padding-left:6px; padding-right:6px; }
   #mapBox svg{ display:block; width:100%; height:auto; }
   #mapBox .prefecture{ fill:#c4cdd4; stroke:#7d8893; stroke-width:1; cursor:pointer; transition:fill .15s; }
   #mapBox .prefecture:hover{ fill:#a9b4bd; }
@@ -366,7 +367,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.3.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.4.0</div>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -1003,6 +1004,37 @@
     }
   }
 
+  // 音を1つ鳴らす（共通）
+  function ensureAudio(){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!actx){ actx = new AC(); bgmGain = actx.createGain(); bgmGain.gain.value=0.35; bgmGain.connect(actx.destination); }
+    if(actx.state==='suspended') actx.resume();
+    return actx;
+  }
+  function tone(freq, start, dur, type, vol){
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.value=freq; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(vol, start);
+    g.gain.exponentialRampToValueAtTime(0.001, start+dur);
+    o.start(start); o.stop(start+dur+0.03);
+  }
+  // ミニゲームクリア：短いクリア音（ド・ミ・ソ・ド）
+  function playClear(){
+    if(muted) return;
+    ensureAudio(); const t=actx.currentTime;
+    [523,659,784].forEach((f,i)=> tone(f, t+i*0.09, 0.16, 'square', 0.18));
+    tone(1046, t+0.27, 0.32, 'square', 0.18);
+  }
+  // 脱出成功：長めのファンファーレ
+  function playWin(){
+    if(muted) return;
+    ensureAudio(); const t=actx.currentTime;
+    const seq=[523,659,784,1046,784,1046];
+    seq.forEach((f,i)=> tone(f, t+i*0.13, 0.2, 'square', 0.2));
+    // 最後にジャーン（和音）
+    [523,659,784,1046].forEach(f=> tone(f, t+seq.length*0.13, 0.7, 'triangle', 0.14));
+  }
+
   function addScore(d, x, y){
     score = Math.max(0, score + d);
     scoreEl.textContent = score;
@@ -1233,8 +1265,9 @@
   function stageClear(n){
     stopStageClock();
     keys = n;
-    playSE(true);
     if(n >= TOTAL_STAGES){ finalWin(); return; }
+    playClear();   // ミニゲームクリア音
+
     const info = STAGE_INFO[n+1];
     document.getElementById('niEmoji').textContent = info.emoji;
     document.getElementById('niTitle').textContent = info.title;
@@ -1264,7 +1297,7 @@
     document.getElementById('thankyou').classList.add('hidden');
     document.getElementById('escWalkerInner').innerHTML = buildStudent(lastIsBoy);
     show('escapeScreen');
-    playSE(true);
+    playWin();                                              // 脱出ファンファーレ
     setTimeout(()=>{ scene.classList.add('open'); }, 600);   // ① ドアが開く
     setTimeout(()=>{ scene.classList.add('walk'); }, 1700);  // ② 歩いて教室から出る
     setTimeout(()=>{ document.getElementById('escFlash').classList.add('on'); }, 3300); // ③ ぴかっ
