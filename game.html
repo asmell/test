@@ -119,9 +119,9 @@
     box-shadow:0 3px 0 rgba(0,0,0,.15); border:3px solid #fff;
   }
   .word .label{
-    margin-top:2px; background:#fff; border-radius:8px; padding:1px 6px;
-    font-size:11px; font-weight:900; color:var(--ink); white-space:nowrap;
-    box-shadow:0 2px 0 rgba(0,0,0,.12);
+    margin-top:3px; background:#fff; border-radius:8px; padding:2px 8px;
+    font-size:15px; font-weight:900; color:#2a2233; white-space:nowrap;
+    box-shadow:0 2px 0 rgba(0,0,0,.18); border:1.5px solid #efe7f5;
   }
   .word.caught{ animation:pop .25s ease forwards; }
   @keyframes pop{ to{ transform:scale(1.6); opacity:0; } }
@@ -255,11 +255,11 @@
 
   /* ③ 都道府県パズル（本物の日本地図） */
   #mapTarget{ color:#fff; font-weight:900; font-size:20px; text-shadow:0 2px 0 rgba(0,0,0,.2); }
-  #mapTarget #mapName{ color:#fff62b; font-size:24px; }
-  #mapBox{ width:100%; max-width:520px; background:#cfeffd; border-radius:16px; box-shadow:0 6px 0 rgba(0,0,0,.12); padding:6px; }
-  #mapScreen{ padding-left:6px; padding-right:6px; }
+  #mapTarget #mapName{ color:#ff2b2b; font-size:26px; text-shadow:0 1px 0 #fff,0 2px 2px rgba(0,0,0,.25); }
+  #mapBox{ width:100%; max-width:560px; background:#cfeffd; border-radius:12px; box-shadow:0 5px 0 rgba(0,0,0,.12); padding:2px; }
+  #mapScreen{ padding-left:0; padding-right:0; gap:6px; }
   #mapBox svg{ display:block; width:100%; height:auto; }
-  #mapBox .prefecture{ fill:#c4cdd4; stroke:#7d8893; stroke-width:1; cursor:pointer; transition:fill .15s; }
+  #mapBox .prefecture{ fill:#c4cdd4; stroke:#6c7681; stroke-width:1.4; cursor:pointer; transition:fill .15s; }
   #mapBox .prefecture:hover{ fill:#a9b4bd; }
   #mapBox .prefecture.done{ fill:#5ccd6a; }
   #mapBox .prefecture.wrong{ fill:#ff6b6b; }
@@ -536,7 +536,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.4.1</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.5.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
