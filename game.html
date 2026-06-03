@@ -123,6 +123,28 @@
     font-size:19px; font-weight:900; color:#1f1a29; white-space:nowrap;
     box-shadow:0 2px 0 rgba(0,0,0,.2); border:2px solid #e7dff0;
   }
+  /* ヒント */
+  #hintBtn{
+    position:absolute; left:50%; bottom:104px; transform:translateX(-50%); z-index:40;
+    font-family:inherit; font-weight:900; font-size:18px; color:#7a4400; cursor:pointer;
+    border:none; border-radius:999px; padding:11px 24px;
+    background:linear-gradient(180deg,#ffe06b,#ffd93d); box-shadow:0 5px 0 #d9a800;
+    animation:hintpulse 1s ease-in-out infinite;
+  }
+  #hintBtn:active{ transform:translateX(-50%) translateY(3px); box-shadow:0 2px 0 #d9a800; }
+  @keyframes hintpulse{ 0%,100%{ box-shadow:0 5px 0 #d9a800; } 50%{ box-shadow:0 5px 0 #d9a800,0 0 16px 4px rgba(255,217,61,.8); } }
+  #hintToast{
+    position:absolute; left:50%; bottom:160px; transform:translateX(-50%); z-index:41;
+    background:#3a2e4a; color:#fff; font-weight:900; font-size:17px; white-space:nowrap;
+    padding:10px 18px; border-radius:14px; box-shadow:0 6px 14px rgba(0,0,0,.3);
+  }
+  .hintglow{ outline:4px solid #ffd93d !important; border-radius:10px;
+    animation:hintblink .6s steps(2) 4; }
+  @keyframes hintblink{ 50%{ filter:brightness(1.4); } }
+  #mapBox .prefecture.hintpref{ fill:#ffd93d !important; animation:hintblink .5s steps(2) 6; }
+  .word.hintglow{ outline:none; }
+  .word.hintglow .pic{ box-shadow:0 0 0 4px #ffd93d, 0 3px 0 rgba(0,0,0,.15); }
+
   .word.caught{ animation:pop .25s ease forwards; }
   @keyframes pop{ to{ transform:scale(1.6); opacity:0; } }
 
@@ -220,12 +242,10 @@
   }
   .r3-door .dframe{ position:absolute; inset:0;
     clip-path:polygon(0 0, 100% 7%, 100% 100%, 0 51%);
-    box-shadow:inset 0 0 0 4px #4a2e18; }
-  .r3-door .dp{ position:absolute; left:24%; right:14%; background:rgba(0,0,0,.22);
-    border-top:1px solid rgba(255,255,255,.12); border-radius:2px; }
-  .r3-door .dp.t{ top:22%; height:30%; }
-  .r3-door .dp.b{ top:58%; height:28%; }
-  .r3-door .dk{ position:absolute; right:13%; top:62%; width:7%; height:4%;
+    box-shadow:inset 0 0 0 4px #4a2e18; }   /* 枠線はドアの形に沿う */
+  .r3-door .dseam{ position:absolute; left:62%; top:6%; width:2px; height:90%;
+    background:rgba(0,0,0,.2); }   /* 縦のつなぎ目（垂直線は自然） */
+  .r3-door .dk{ position:absolute; left:18%; top:54%; width:7%; height:4.5%;
     background:#ffd93d; border-radius:50%; box-shadow:0 0 0 2px #b8860b; }
   /* 天井のライト */
   .r3-light{ position:absolute; left:47%; top:5%; width:6%; height:3%; background:#fff7d0; border-radius:0 0 6px 6px; box-shadow:0 0 14px 4px rgba(255,247,200,.7); }
@@ -259,18 +279,18 @@
   @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-7px);} 75%{transform:translateX(7px);} }
 
   /* ② 英語スペル */
-  .spell-jp{ font-size:26px; font-weight:900; color:var(--ink); margin-bottom:10px; }
-  .spell-slots{ display:flex; justify-content:center; gap:6px; flex-wrap:wrap; min-height:48px; margin-bottom:12px; }
+  .spell-jp{ font-size:32px; font-weight:900; color:var(--ink); margin-bottom:12px; }
+  .spell-slots{ display:flex; justify-content:center; gap:7px; flex-wrap:wrap; min-height:56px; margin-bottom:14px; }
   .slot{
-    width:38px; height:46px; border-radius:8px; background:#f1f1f7; border:2px dashed #c9c4d6;
-    display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900; color:var(--ink);
+    width:46px; height:56px; border-radius:9px; background:#f1f1f7; border:2px dashed #c9c4d6;
+    display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:900; color:var(--ink);
   }
   .slot.filled{ background:#fff; border-style:solid; border-color:var(--blue); }
-  .spell-tiles{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .spell-tiles{ display:flex; justify-content:center; gap:9px; flex-wrap:wrap; margin-bottom:14px; }
   .tile{
-    width:42px; height:48px; border-radius:10px; border:none; cursor:pointer;
+    width:50px; height:56px; border-radius:11px; border:none; cursor:pointer;
     background:linear-gradient(180deg,#7fd6ff,var(--blue)); color:#06435e;
-    font-size:24px; font-weight:900; box-shadow:0 4px 0 #1c91c9;
+    font-size:30px; font-weight:900; box-shadow:0 4px 0 #1c91c9;
   }
   .tile:active{ transform:translateY(3px); box-shadow:0 1px 0 #1c91c9; }
   .tile.used{ visibility:hidden; }
@@ -319,7 +339,7 @@
   }
   /* 金庫 */
   #clueCard{ background:#fff; border-radius:14px; padding:10px 14px; width:100%; max-width:330px; box-shadow:0 6px 0 rgba(0,0,0,.18); }
-  #clueList{ display:flex; flex-direction:column; gap:3px; font-size:18px; font-weight:900; color:var(--ink); }
+  #clueList{ display:flex; flex-direction:column; gap:5px; font-size:21px; font-weight:900; color:var(--ink); }
   #clueList .clue b{ color:var(--blue); }
   .safe{
     position:relative; width:200px; height:188px; margin:4px auto; border-radius:14px;
@@ -593,7 +613,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.8.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -812,6 +832,10 @@
     </div>
     <div id="kanjiResult" style="color:#1f1a29;font-weight:900;font-size:22px;min-height:30px;"></div>
   </div>
+
+  <!-- 残り15秒で出るヒントボタン＆ヒント表示 -->
+  <button id="hintBtn" class="hidden">💡 ヒント</button>
+  <div id="hintToast" class="hidden"></div>
 
 </div>
 
@@ -1237,6 +1261,7 @@
   function startGame(){
     arenaSize();
     state = 'playing';
+    hideHint();
     score = 0; timeLeft = TIME_LIMIT;
     spawnTimer = 0; timerAcc = 0; moveDir = 0;
     words.forEach(w=>w.el.remove()); words = [];
@@ -1410,6 +1435,7 @@
       timerAcc -= Math.floor(timerAcc);
       if(timeLeft<=0){ timeLeft=0; updateTime(); return lose(); }
       updateTime();
+      if(timeLeft<=15) showHintBtn();      // 残り15秒でヒント
       if(timeLeft<=10) timePill.classList.add('warn');
     }
 
@@ -1608,11 +1634,13 @@
   let stageClock=null, stageTimeLeft=STAGE_TIME;
   function startStageClock(){
     stageTimeLeft = STAGE_TIME;
+    hideHint();                 // ヒントボタンは最初は隠す
     updateStageClock();
     clearInterval(stageClock);
     stageClock = setInterval(()=>{
       stageTimeLeft--;
       updateStageClock();
+      if(stageTimeLeft<=15) showHintBtn();   // 残り15秒でヒント
       if(stageTimeLeft<=0){ stopStageClock(); gameOver(); }
     }, 1000);
   }
@@ -1626,12 +1654,52 @@
     });
   }
 
+  // ===== ヒント =====
+  const hintBtn = document.getElementById('hintBtn');
+  const hintToast = document.getElementById('hintToast');
+  let toastTimer = null;
+  function showHintBtn(){ hintBtn.classList.remove('hidden'); }
+  function hideHint(){ hintBtn.classList.add('hidden'); hintToast.classList.add('hidden'); }
+  function toast(msg){
+    hintToast.textContent = msg;
+    hintToast.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>hintToast.classList.add('hidden'), 3000);
+  }
+  function giveHint(){
+    if(state==='playing'){               // ① 単語拾い
+      let any=false;
+      words.forEach(w=>{ if(!w.dead && w.type==='element'){ w.el.classList.add('hintglow'); any=true; setTimeout(()=>w.el.classList.remove('hintglow'),2200); } });
+      toast(any ? '光ってるのが単体だよ！' : '単体（1種類の原子）をさがそう！');
+    } else if(state==='spell'){          // ② スペル
+      toast('さいしょの文字は「'+spellWord.en[0]+'」');
+    } else if(state==='map'){            // ③ 都道府県
+      const g=[...document.querySelectorAll('#mapBox .prefecture')].find(x=>x.dataset.jp===mapQueue[mapDoneN]);
+      if(g){ g.classList.add('hintpref'); setTimeout(()=>g.classList.remove('hintpref'),3000); }
+      toast('光ってる県をタップ！');
+    } else if(state==='lock'){           // ④ 金庫の暗号
+      toast('暗号の1つ目の数字は「'+codeAns[0]+'」');
+    } else if(state==='kanji'){          // ⑤ 部首とつくり
+      const hens=[...document.querySelectorAll('#kanjiBoard .hen')];
+      const tsus=[...document.querySelectorAll('#kanjiBoard .tsu')];
+      for(const pr of kanjiRound){
+        const h=hens.find(b=>!b.classList.contains('used')&&b.dataset.h===pr.hen);
+        const t=tsus.find(b=>!b.classList.contains('used')&&b.dataset.t===pr.tsu);
+        if(h&&t){ h.classList.add('hintglow'); t.classList.add('hintglow');
+          setTimeout(()=>{h.classList.remove('hintglow');t.classList.remove('hintglow');},3000); break; }
+      }
+      toast('光ってる2つが組み合わせ！');
+    }
+  }
+  hintBtn.addEventListener('click', giveHint);
+
   // ===== GAME OVER（時間切れ）→ タイトルへ =====
   function gameOver(){
     if(state==='gameover'||state==='win') return;
     state='gameover';
     cancelAnimationFrame(rafId);
     stopStageClock();
+    hideHint();
     stopBGM();
     playGameOver();                   // しょんぼり下降音
     show('gameOverScreen');
@@ -1641,6 +1709,7 @@
   // ステージのクリア → カギGETアニメ → つぎへ
   function stageClear(n){
     stopStageClock();
+    hideHint();
     totalMs += Date.now() - stageStartMs;   // このステージのタイムを合計に加算
     keys = n;
     playClear();                 // ミニゲームクリア音
@@ -2124,11 +2193,11 @@
     board.innerHTML =
       '<div style="display:flex;flex-direction:column;gap:8px;">'+
         '<div style="font-weight:900;color:#888;font-size:12px;">へん</div>'+
-        hens.map(h=>`<button class="nametile hen" data-h="${h}" style="font-size:24px;">${h}</button>`).join('')+
+        hens.map(h=>`<button class="nametile hen" data-h="${h}" style="font-size:32px;padding:10px 18px;">${h}</button>`).join('')+
       '</div>'+
       '<div style="display:flex;flex-direction:column;gap:8px;">'+
         '<div style="font-weight:900;color:#888;font-size:12px;">つくり</div>'+
-        tsus.map(t=>`<button class="nametile tsu" data-t="${t}" style="font-size:24px;background:linear-gradient(180deg,#ffb3c1,#e0566b);color:#fff;box-shadow:0 4px 0 #b03a4c;">${t}</button>`).join('')+
+        tsus.map(t=>`<button class="nametile tsu" data-t="${t}" style="font-size:32px;padding:10px 18px;background:linear-gradient(180deg,#ffb3c1,#e0566b);color:#fff;box-shadow:0 4px 0 #b03a4c;">${t}</button>`).join('')+
       '</div>';
     board.querySelectorAll('.hen').forEach(b=> b.onclick = ()=>{
       if(b.classList.contains('used')) return;
@@ -2202,13 +2271,7 @@
     + '<div class="r3 r3-right"></div><div class="r3 r3-back"></div><div class="r3 r3-floor"></div>'
     + '<div class="r3-light"></div><div class="r3-board"><span>🔑 ESCAPE</span></div>'
     + '<div class="r3-window"></div>'
-    + '<div class="r3-door"><div class="dframe"></div><div class="dp t"></div><div class="dp b"></div><div class="dk"></div></div>'
-    // 床の机＆椅子（奥ほど小さく）
-    + '<div class="r3-desk" style="left:6%;bottom:13%;width:22%;height:14%;"></div>'
-    + '<div class="r3-chair" style="left:9%;bottom:5%;width:15%;height:9%;"></div>'
-    + '<div class="r3-desk" style="right:6%;bottom:14%;width:20%;height:13%;"></div>'
-    + '<div class="r3-chair" style="right:9%;bottom:6%;width:14%;height:8%;"></div>'
-    + '<div class="r3-desk" style="left:40%;top:62%;width:14%;height:9%;"></div>';
+    + '<div class="r3-door"><div class="dframe"></div><div class="dseam"></div><div class="dk"></div></div>';
   document.querySelectorAll('.room').forEach(el=>{
     const d=document.createElement('div'); d.className='room3d'; d.innerHTML=ROOM3D;
     el.insertBefore(d, el.firstChild);
