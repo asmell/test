@@ -613,7 +613,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.1</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -1671,14 +1671,18 @@
       let any=false;
       words.forEach(w=>{ if(!w.dead && w.type==='element'){ w.el.classList.add('hintglow'); any=true; setTimeout(()=>w.el.classList.remove('hintglow'),2200); } });
       toast(any ? '光ってるのが単体だよ！' : '単体（1種類の原子）をさがそう！');
-    } else if(state==='spell'){          // ② スペル
-      toast('さいしょの文字は「'+spellWord.en[0]+'」');
-    } else if(state==='map'){            // ③ 都道府県
+    } else if(state==='spell'){          // ② スペル：今の進みに合わせて次の文字
+      const i = Math.min(spellInput.length, spellWord.en.length-1);
+      const ord = ['1ばんめ','2ばんめ','3ばんめ','4ばんめ','5ばんめ','6ばんめ','7ばんめ','8ばんめ'][i] || (i+1)+'ばんめ';
+      toast(ord+'の文字は「'+spellWord.en[i]+'」');
+    } else if(state==='map'){            // ③ 都道府県：今のお題の県を光らせる
       const g=[...document.querySelectorAll('#mapBox .prefecture')].find(x=>x.dataset.jp===mapQueue[mapDoneN]);
       if(g){ g.classList.add('hintpref'); setTimeout(()=>g.classList.remove('hintpref'),3000); }
-      toast('光ってる県をタップ！');
-    } else if(state==='lock'){           // ④ 金庫の暗号
-      toast('暗号の1つ目の数字は「'+codeAns[0]+'」');
+      toast('光ってる「'+mapQueue[mapDoneN]+'」をタップ！');
+    } else if(state==='lock'){           // ④ 金庫：今入力中の次のけた
+      const i = Math.min(codeInput.length, codeAns.length-1);
+      const ord = ['1','2','3','4','5'][i] || (i+1);
+      toast('暗号の'+ord+'つ目の数字は「'+codeAns[i]+'」');
     } else if(state==='kanji'){          // ⑤ 部首とつくり
       const hens=[...document.querySelectorAll('#kanjiBoard .hen')];
       const tsus=[...document.querySelectorAll('#kanjiBoard .tsu')];
