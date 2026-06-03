@@ -176,6 +176,78 @@
   .door .light{ position:absolute; inset:0; background:#fff; opacity:0; }
   .door.open .light{ animation:flash 1.2s ease forwards; }
   @keyframes flash{ 0%{opacity:0;} 60%{opacity:1;} 100%{opacity:.85;} }
+
+  /* ===== ミニゲーム②③④ 共通 ===== */
+  .screen.top{ justify-content:flex-start; padding-top:16px; gap:12px; }
+  .keybar{
+    background:#fff; color:var(--ink); border-radius:999px; padding:7px 16px;
+    font-weight:900; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.12);
+  }
+  .ministage{ color:#fff; font-weight:900; font-size:18px; text-shadow:0 2px 0 rgba(0,0,0,.2); }
+  .qcard{
+    background:#fff; border-radius:20px; padding:16px; width:100%; max-width:340px;
+    box-shadow:0 8px 0 rgba(0,0,0,.12);
+  }
+  .progress{ color:#fff; font-weight:900; font-size:15px; }
+  .shake{ animation:shake .35s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-7px);} 75%{transform:translateX(7px);} }
+
+  /* ② 英語スペル */
+  .spell-jp{ font-size:26px; font-weight:900; color:var(--ink); margin-bottom:10px; }
+  .spell-slots{ display:flex; justify-content:center; gap:6px; flex-wrap:wrap; min-height:48px; margin-bottom:12px; }
+  .slot{
+    width:38px; height:46px; border-radius:8px; background:#f1f1f7; border:2px dashed #c9c4d6;
+    display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900; color:var(--ink);
+  }
+  .slot.filled{ background:#fff; border-style:solid; border-color:var(--blue); }
+  .spell-tiles{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .tile{
+    width:42px; height:48px; border-radius:10px; border:none; cursor:pointer;
+    background:linear-gradient(180deg,#7fd6ff,var(--blue)); color:#06435e;
+    font-size:24px; font-weight:900; box-shadow:0 4px 0 #1c91c9;
+  }
+  .tile:active{ transform:translateY(3px); box-shadow:0 1px 0 #1c91c9; }
+  .tile.used{ visibility:hidden; }
+  .mini-btns{ display:flex; gap:8px; justify-content:center; }
+  .btn.mini{ font-size:16px; padding:10px 18px; box-shadow:0 4px 0 #d97a00; }
+  .btn.mini.blue{ box-shadow:0 4px 0 #1c91c9; }
+
+  /* ③ 都道府県パズル */
+  #mapBox{ width:100%; max-width:330px; background:#cfeffd; border-radius:16px; box-shadow:0 6px 0 rgba(0,0,0,.12); }
+  #mapBox svg{ display:block; width:100%; height:auto; }
+  .pref{ cursor:pointer; transition:fill .2s; }
+  .pref.empty{ fill:#bdbdbd; }
+  .pref.done{ fill:#6dd96d; }
+  .pref-label{ font-size:8px; font-weight:900; fill:#fff; pointer-events:none; text-anchor:middle; }
+  .name-tiles{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; max-width:340px; }
+  .nametile{
+    border:none; cursor:pointer; border-radius:999px; padding:9px 14px; font-size:15px; font-weight:900;
+    background:linear-gradient(180deg,#ffe06b,var(--yellow)); color:#7a4400; box-shadow:0 4px 0 #d97a00;
+  }
+  .nametile:active{ transform:translateY(3px); box-shadow:0 1px 0 #d97a00; }
+  .nametile.sel{ outline:4px solid #fff; }
+  .nametile.used{ visibility:hidden; }
+
+  /* ④ 計算で鍵 */
+  .mathq{ font-size:34px; font-weight:900; color:var(--ink); text-align:center; margin-bottom:8px; }
+  .mathin{
+    font-size:30px; font-weight:900; text-align:center; min-height:44px; color:var(--blue);
+    background:#f1f1f7; border-radius:10px; margin-bottom:12px; letter-spacing:2px;
+  }
+  .keypad{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .key{
+    border:none; cursor:pointer; border-radius:12px; padding:14px 0; font-size:24px; font-weight:900;
+    background:#fff; color:var(--ink); box-shadow:0 4px 0 rgba(0,0,0,.15);
+  }
+  .key:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.15); }
+  .key.ok{ background:linear-gradient(180deg,#9be79b,var(--green)); color:#0a4d1a; box-shadow:0 4px 0 #2f9b46; }
+  .key.del{ background:#ffd5d5; }
+  .dials{ display:flex; justify-content:center; gap:8px; margin-bottom:10px; }
+  .dial{
+    width:40px; height:50px; border-radius:8px; background:#3a2e4a; color:#ffd93d;
+    display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900;
+    box-shadow:inset 0 3px 0 rgba(255,255,255,.15);
+  }
 </style>
 </head>
 <body>
@@ -197,7 +269,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v1.9.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.0.0</div>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -208,9 +280,10 @@
       落ちてくる言葉の中から<br>
       <b style="color:#d63a3a;font-size:18px;">化学の「単体」</b>を<br>
       かごでキャッチ！<br><br>
-      ⭐ 5こ集めたらドアが開く！<br>
+      ⭐ 5こ集めたらカギ①をGET！<br>
       ⏱ せいげん時間 2分<br>
-      ⚠ 化合物・まちがいは <b>-1</b>
+      ⚠ 化合物・まちがいは <b>-1</b><br><br>
+      🔑 5つのカギを集めて脱出だ！
     </div>
     <button class="btn blue" id="startGame">🧺 スタート！</button>
   </div>
@@ -250,7 +323,7 @@
   <div id="winScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#ff9a9a,#d63a3a);">
     <div class="pop-title" style="text-shadow:0 4px 0 var(--green),0 8px 12px rgba(0,0,0,.3);">脱出成功！</div>
     <div class="door open"><div class="light"></div></div>
-    <div class="bubble">🎉 単体を5こ集めてドアが開いた！<br>みごと教室から脱出だ！</div>
+    <div class="bubble">🎉 5つのカギを集めてドアが開いた！<br>みごと教室から脱出だ！</div>
     <button class="btn" id="replayBtn">🔁 もう一度</button>
   </div>
 
@@ -259,6 +332,62 @@
     <div class="pop-title" style="text-shadow:0 4px 0 #a52a2a,0 8px 12px rgba(0,0,0,.3);">時間切れ…</div>
     <div class="bubble">⏱ 時間内に脱出できなかった…<br>もう一度チャレンジしよう！</div>
     <button class="btn blue" id="retryBtn">🔁 リトライ</button>
+  </div>
+
+  <!-- ===== カギGET ＆ つぎのステージ説明（共通） ===== -->
+  <div id="nextIntro" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#b39cf7,#7c5fd6);">
+    <div style="font-size:60px;" id="niEmoji">🔑</div>
+    <div class="pop-title" style="font-size:7vw;text-shadow:0 4px 0 var(--purple),0 8px 12px rgba(0,0,0,.3);" id="niTitle">ミニゲーム②</div>
+    <div class="bubble" id="niDesc">せつめい</div>
+    <div style="color:#fff;font-weight:900;">🔑 カギ <span id="niKeys">1</span>/5</div>
+    <button class="btn blue" id="niStart">▶ スタート！</button>
+  </div>
+
+  <!-- ===== ミニゲーム② 英語スペル並べ ===== -->
+  <div id="spellScreen" class="screen top hidden" style="background:radial-gradient(circle at 50% 20%,#7fd6ff,#2f8fd6);">
+    <div class="keybar">🔑 <span id="keys2">1</span>/5 ・ といた数 <span id="spellDone">0</span>/4</div>
+    <div class="ministage">② えいごスペルならべ</div>
+    <div class="qcard">
+      <div class="spell-jp"><span id="spellPic">🐱</span> <span id="spellJp">ねこ</span></div>
+      <div class="spell-slots" id="spellSlots"></div>
+      <div class="spell-tiles" id="spellTiles"></div>
+      <div class="mini-btns">
+        <button class="btn mini blue" id="spellBack">← 1つけす</button>
+        <button class="btn mini" id="spellReset">ぜんぶけす</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ミニゲーム③ 都道府県パズル ===== -->
+  <div id="mapScreen" class="screen top hidden" style="background:radial-gradient(circle at 50% 20%,#9be79b,#3fb95f);">
+    <div class="keybar">🔑 <span id="keys3">2</span>/5 ・ おいた数 <span id="mapDone">0</span>/6</div>
+    <div class="ministage">③ 都道府県パズル</div>
+    <div id="mapHint" style="color:#fff;font-weight:900;font-size:15px;">名前をえらんで、ただしい場所に置こう！</div>
+    <div id="mapBox"></div>
+    <div class="name-tiles" id="mapTiles"></div>
+  </div>
+
+  <!-- ===== ミニゲーム④ 計算で鍵を開ける ===== -->
+  <div id="lockScreen" class="screen top hidden" style="background:radial-gradient(circle at 50% 20%,#ffd98a,#e0922f);">
+    <div class="keybar">🔑 <span id="keys4">3</span>/5 ・ せいかい <span id="mathDone">0</span>/4</div>
+    <div class="ministage">④ 計算で金庫をひらけ！</div>
+    <div class="dials" id="dials"></div>
+    <div class="qcard">
+      <div class="mathq" id="mathQ">12 + 7</div>
+      <div class="mathin" id="mathIn">_</div>
+      <div class="keypad" id="keypad"></div>
+    </div>
+  </div>
+
+  <!-- ===== ミニゲーム⑤ 部首とつくりの組み合わせ ===== -->
+  <div id="kanjiScreen" class="screen top hidden" style="background:radial-gradient(circle at 50% 20%,#ffb3c1,#e0566b);">
+    <div class="keybar">🔑 <span id="keys5">4</span>/5 ・ できた漢字 <span id="kanjiDone">0</span>/4</div>
+    <div class="ministage">⑤ 部首とつくりの組み合わせ</div>
+    <div id="kanjiHint" style="color:#fff;font-weight:900;font-size:15px;">へん と つくり をえらんで漢字を作ろう！</div>
+    <div class="qcard">
+      <div id="kanjiBoard" style="display:flex;justify-content:space-around;gap:16px;"></div>
+    </div>
+    <div id="kanjiResult" style="color:#fff;font-weight:900;font-size:22px;min-height:26px;"></div>
   </div>
 
 </div>
@@ -419,9 +548,7 @@
 
   // ===== 画面遷移 =====
   function show(id){
-    ['titleScreen','introScreen','winScreen','loseScreen'].forEach(s=>{
-      document.getElementById(s).classList.add('hidden');
-    });
+    document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
     gameScreen.classList.add('hidden');
     if(id==='game'){ gameScreen.classList.remove('hidden'); }
     else { document.getElementById(id).classList.remove('hidden'); }
@@ -598,10 +725,9 @@
 
   function win(){
     if(state!=='playing') return;
-    state='win';
+    state='cleared';
     cancelAnimationFrame(rafId);
-    stopBGM();
-    setTimeout(()=>show('winScreen'), 350);
+    setTimeout(()=>stageClear(1), 350);
   }
   function lose(){
     if(state==='lose') return;
@@ -710,14 +836,391 @@
     muted = !muted;
     muteBtn.textContent = muted ? '🔇' : '🔊';
     if(muted) stopBGM();
-    else if(state === 'playing') startBGM();
+    else if(['playing','spell','map','lock','kanji'].includes(state)) startBGM();
   });
+
+  // ================================================================
+  // ===== ステージ進行（ミニゲーム①〜⑤をクリアして脱出） =====
+  // ================================================================
+  let stage = 1;     // いまのステージ
+  let keys  = 0;     // 集めたカギ
+  const TOTAL_STAGES = 5;
+
+  // つぎのステージ説明（カギGET画面で表示）
+  const STAGE_INFO = {
+    2:{emoji:'🔤', title:'ミニゲーム②', desc:'<b style="color:var(--blue);font-size:18px;">えいごスペルならべ</b><br>日本語に合う英単語を<br>文字をならべて作ろう！<br><br>⭐ 4もん せいかいでクリア'},
+    3:{emoji:'🗾', title:'ミニゲーム③', desc:'<b style="color:#2f9b46;font-size:18px;">都道府県パズル</b><br>名前をえらんで<br>正しい場所に置こう！<br><br>⭐ 6こ おけたらクリア'},
+    4:{emoji:'🔢', title:'ミニゲーム④', desc:'<b style="color:#c47e00;font-size:18px;">計算で金庫をひらけ</b><br>計算の答えを入力して<br>金庫のカギを開けよう！<br><br>⭐ 4もん せいかいでクリア'},
+    5:{emoji:'🈁', title:'ミニゲーム⑤', desc:'<b style="color:#d63a3a;font-size:18px;">部首とつくりの組み合わせ</b><br>へん と つくり をくっつけて<br>正しい漢字を作ろう！<br><br>⭐ 4こ できたらクリア'},
+  };
+
+  // ステージのクリア → カギGET → つぎへ
+  function stageClear(n){
+    keys = n;
+    playSE(true);
+    if(n >= TOTAL_STAGES){ finalWin(); return; }
+    const info = STAGE_INFO[n+1];
+    document.getElementById('niEmoji').textContent = info.emoji;
+    document.getElementById('niTitle').textContent = info.title;
+    document.getElementById('niDesc').innerHTML = info.desc;
+    document.getElementById('niKeys').textContent = keys;
+    stage = n+1;
+    show('nextIntro');
+  }
+
+  // ステージの開始（n のミニゲームをはじめる）
+  function startStage(n){
+    stage = n;
+    if(n===1) startGame();
+    else if(n===2) startSpell();
+    else if(n===3) startMap();
+    else if(n===4) startLock();
+    else if(n===5) startKanji();
+  }
+
+  function finalWin(){
+    state='win';
+    stopBGM();
+    show('winScreen');
+  }
+
+  // ぜんぶ最初から
+  function restartAll(){ keys=0; stage=1; show('introScreen'); }
+
+  // =========================================================
+  // ===== ミニゲーム② 英語スペルならべ =====
+  // =========================================================
+  // 難易度：中1〜中2の英単語（日本語ヒント＋絵）
+  const EN_WORDS = [
+    {jp:'りんご',   en:'APPLE',  pic:'🍎'},
+    {jp:'みず',     en:'WATER',  pic:'💧'},
+    {jp:'おんがく', en:'MUSIC',  pic:'🎵'},
+    {jp:'がっこう', en:'SCHOOL', pic:'🏫'},
+    {jp:'ともだち', en:'FRIEND', pic:'🧑‍🤝‍🧑'},
+    {jp:'みどり',   en:'GREEN',  pic:'🟢'},
+    {jp:'つくえ',   en:'DESK',   pic:'🪑'},
+    {jp:'よる',     en:'NIGHT',  pic:'🌙'},
+    {jp:'かわ',     en:'RIVER',  pic:'🏞️'},
+    {jp:'ほし',     en:'STAR',   pic:'⭐'},
+    {jp:'せかい',   en:'WORLD',  pic:'🌍'},
+    {jp:'いえ',     en:'HOUSE',  pic:'🏠'},
+  ];
+  const SPELL_TARGET = 4;
+  let spellPool=[], spellWord=null, spellInput=[], spellDoneN=0;
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+
+  function startSpell(){
+    state='spell';
+    spellDoneN = 0;
+    document.getElementById('keys2').textContent = keys;
+    document.getElementById('spellDone').textContent = '0';
+    spellPool = shuffle(EN_WORDS);
+    show('spellScreen');
+    startBGM();
+    nextSpell();
+  }
+
+  function nextSpell(){
+    spellWord = spellPool[spellDoneN % spellPool.length];
+    spellInput = [];
+    document.getElementById('spellPic').textContent = spellWord.pic;
+    document.getElementById('spellJp').textContent  = spellWord.jp;
+    // スロット
+    const slots = document.getElementById('spellSlots');
+    slots.innerHTML = spellWord.en.split('').map(()=>'<div class="slot"></div>').join('');
+    // バラバラの文字タイル
+    const letters = shuffle(spellWord.en.split(''));
+    const tiles = document.getElementById('spellTiles');
+    tiles.innerHTML = letters.map((c,i)=>`<button class="tile" data-i="${i}" data-c="${c}">${c}</button>`).join('');
+    tiles.querySelectorAll('.tile').forEach(t=>{
+      t.onclick = ()=>{
+        if(t.classList.contains('used')) return;
+        spellInput.push({c:t.dataset.c, el:t});
+        t.classList.add('used');
+        renderSpell();
+      };
+    });
+    renderSpell();
+  }
+
+  function renderSpell(){
+    const slots = document.getElementById('spellSlots').children;
+    for(let i=0;i<slots.length;i++){
+      const ch = spellInput[i] ? spellInput[i].c : '';
+      slots[i].textContent = ch;
+      slots[i].classList.toggle('filled', !!ch);
+    }
+    if(spellInput.length === spellWord.en.length){
+      const guess = spellInput.map(x=>x.c).join('');
+      if(guess === spellWord.en){
+        playSE(true);
+        spellDoneN++;
+        document.getElementById('spellDone').textContent = spellDoneN;
+        if(spellDoneN >= SPELL_TARGET){ setTimeout(()=>stageClear(2), 500); return; }
+        setTimeout(nextSpell, 500);
+      } else {
+        playSE(false);
+        const card = document.querySelector('#spellScreen .qcard');
+        card.classList.add('shake');
+        setTimeout(()=>card.classList.remove('shake'), 350);
+        setTimeout(spellBack, 350);  // 最後の1文字をもどす
+      }
+    }
+  }
+  function spellBack(){
+    const last = spellInput.pop();
+    if(last) last.el.classList.remove('used');
+    renderSpell();
+  }
+  function spellReset(){
+    spellInput.forEach(x=>x.el.classList.remove('used'));
+    spellInput = [];
+    renderSpell();
+  }
+  document.getElementById('spellBack').onclick  = spellBack;
+  document.getElementById('spellReset').onclick = spellReset;
+
+  // =========================================================
+  // ===== ミニゲーム③ 都道府県パズル =====
+  // =========================================================
+  // 難易度：中1〜中2 地理（有名な都道府県の場所）
+  // 位置は日本列島っぽく配置（cx,cy は mapBox の100x120 viewBox基準）
+  const PREFS = [
+    {name:'北海道', cx:80, cy:18},
+    {name:'宮城',   cx:74, cy:42},
+    {name:'東京',   cx:70, cy:60},
+    {name:'愛知',   cx:55, cy:66},
+    {name:'大阪',   cx:43, cy:70},
+    {name:'福岡',   cx:22, cy:80},
+  ];
+  let mapTargets=[], mapDoneN=0, mapSel=null;
+
+  function startMap(){
+    state='map';
+    mapDoneN = 0; mapSel = null;
+    document.getElementById('keys3').textContent = keys;
+    document.getElementById('mapDone').textContent = '0';
+    mapTargets = shuffle(PREFS);
+    drawMap();
+    drawMapTiles();
+    show('mapScreen');
+    startBGM();
+  }
+
+  function drawMap(){
+    // ざっくり日本列島のシルエット＋空のスロット
+    let svg = '<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<path d="M70 8 Q92 10 88 26 Q84 38 74 40 Q60 48 64 60 Q60 72 50 70 Q40 76 30 78 Q14 80 10 92 Q8 100 16 98 Q26 92 36 86 Q48 82 56 76 Q70 70 74 56 Q80 44 86 36 Q96 24 86 12 Q80 6 70 8 Z" fill="#bfe3a6" opacity=".5"/>';
+    PREFS.forEach(p=>{
+      svg += `<circle class="pref empty" data-name="${p.name}" cx="${p.cx}" cy="${p.cy}" r="9"/>`;
+      svg += `<text class="pref-label" x="${p.cx}" y="${p.cy+3}" data-name="${p.name}"></text>`;
+    });
+    svg += '</svg>';
+    const box = document.getElementById('mapBox');
+    box.innerHTML = svg;
+    box.querySelectorAll('.pref').forEach(c=>{
+      c.onclick = ()=>placePref(c.dataset.name, c);
+    });
+  }
+
+  function drawMapTiles(){
+    const tiles = document.getElementById('mapTiles');
+    tiles.innerHTML = mapTargets.map(p=>`<button class="nametile" data-name="${p.name}">${p.name}</button>`).join('');
+    tiles.querySelectorAll('.nametile').forEach(t=>{
+      t.onclick = ()=>{
+        if(t.classList.contains('used')) return;
+        tiles.querySelectorAll('.nametile').forEach(x=>x.classList.remove('sel'));
+        t.classList.add('sel');
+        mapSel = t;
+      };
+    });
+  }
+
+  function placePref(name, circle){
+    if(!mapSel){ return; }                 // 先に名前をえらぶ
+    if(circle.classList.contains('done')) return;
+    if(mapSel.dataset.name === name){
+      // 正解
+      playSE(true);
+      circle.classList.remove('empty'); circle.classList.add('done');
+      const box = document.getElementById('mapBox');
+      box.querySelector(`text[data-name="${name}"]`).textContent = name;
+      mapSel.classList.add('used'); mapSel.classList.remove('sel'); mapSel=null;
+      mapDoneN++;
+      document.getElementById('mapDone').textContent = mapDoneN;
+      if(mapDoneN >= PREFS.length){ setTimeout(()=>stageClear(3), 500); }
+    } else {
+      // まちがい
+      playSE(false);
+      document.getElementById('mapBox').classList.add('shake');
+      setTimeout(()=>document.getElementById('mapBox').classList.remove('shake'), 350);
+    }
+  }
+
+  // =========================================================
+  // ===== ミニゲーム④ 計算で金庫をひらく =====
+  // =========================================================
+  // 難易度：中1〜中2（正負の数・四則・かんたんな式）
+  const MATH_TARGET = 4;
+  let mathQs=[], mathIdx=0, mathDoneN=0, mathInput='';
+
+  function makeMathProblem(){
+    const t = Math.floor(Math.random()*5);
+    let q, a;
+    if(t===0){ const x=rnd(-9,9), y=rnd(-9,9); q=`${x} + (${y})`; a=x+y; }
+    else if(t===1){ const x=rnd(-9,9), y=rnd(1,9); q=`${x} − ${y}`; a=x-y; }
+    else if(t===2){ const x=rnd(2,9), y=rnd(-9,9); q=`${x} × (${y})`; a=x*y; }
+    else if(t===3){ const y=rnd(2,9), a2=rnd(-8,8); q=`${y*a2} ÷ ${y}`; a=a2; }
+    else { const x=rnd(2,9), y=rnd(2,9), z=rnd(1,9); q=`${x} × ${y} − ${z}`; a=x*y-z; }
+    return {q, a};
+  }
+  function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function startLock(){
+    state='lock';
+    mathDoneN = 0; mathIdx = 0; mathInput='';
+    document.getElementById('keys4').textContent = keys;
+    document.getElementById('mathDone').textContent = '0';
+    mathQs = [];
+    for(let i=0;i<MATH_TARGET;i++) mathQs.push(makeMathProblem());
+    // ダイヤル
+    document.getElementById('dials').innerHTML =
+      mathQs.map(()=>'<div class="dial">?</div>').join('');
+    // キーパッド
+    const keypad = document.getElementById('keypad');
+    const keysArr = ['7','8','9','4','5','6','1','2','3','-','0','OK'];
+    keypad.innerHTML = keysArr.map(k=>{
+      let cls='key';
+      if(k==='OK') cls+=' ok';
+      if(k==='-') cls+=' del';
+      const label = k==='-' ? '±' : k;
+      return `<button class="${cls}" data-k="${k}">${label}</button>`;
+    }).join('');
+    keypad.querySelectorAll('.key').forEach(b=> b.onclick = ()=>mathKey(b.dataset.k));
+    show('lockScreen');
+    startBGM();
+    showMathQ();
+  }
+
+  function showMathQ(){
+    mathInput = '';
+    document.getElementById('mathQ').textContent = mathQs[mathIdx].q + ' =';
+    document.getElementById('mathIn').textContent = '_';
+  }
+
+  function mathKey(k){
+    if(k==='OK'){
+      if(mathInput==='' || mathInput==='-') return;
+      if(parseInt(mathInput,10) === mathQs[mathIdx].a){
+        playSE(true);
+        document.getElementById('dials').children[mathIdx].textContent =
+          ((mathQs[mathIdx].a % 10)+10)%10;  // 一の位をダイヤルに表示
+        mathDoneN++; mathIdx++;
+        document.getElementById('mathDone').textContent = mathDoneN;
+        if(mathDoneN >= MATH_TARGET){ setTimeout(()=>stageClear(4), 600); return; }
+        setTimeout(showMathQ, 400);
+      } else {
+        playSE(false);
+        const card = document.querySelector('#lockScreen .qcard');
+        card.classList.add('shake');
+        setTimeout(()=>card.classList.remove('shake'), 350);
+        mathInput=''; document.getElementById('mathIn').textContent='_';
+      }
+      return;
+    }
+    if(k==='-'){ // 符号トグル
+      mathInput = mathInput.startsWith('-') ? mathInput.slice(1) : '-'+mathInput;
+    } else {
+      if(mathInput.replace('-','').length>=3) return;
+      mathInput += k;
+    }
+    document.getElementById('mathIn').textContent = mathInput==='' ? '_' : mathInput;
+  }
+
+  // =========================================================
+  // ===== ミニゲーム⑤ 部首とつくりの組み合わせ =====
+  // =========================================================
+  // 難易度：中1〜中2の漢字（へん＋つくり＝漢字）
+  const KANJI_PAIRS = [
+    {hen:'言', tsu:'舌', kanji:'話'},
+    {hen:'日', tsu:'寺', kanji:'時'},
+    {hen:'氵', tsu:'毎', kanji:'海'},
+    {hen:'糸', tsu:'田', kanji:'細'},
+    {hen:'木', tsu:'反', kanji:'板'},
+    {hen:'亻', tsu:'木', kanji:'休'},
+    {hen:'女', tsu:'子', kanji:'好'},
+    {hen:'門', tsu:'日', kanji:'間'},
+  ];
+  const KANJI_TARGET = 4;
+  let kanjiRound=[], kanjiDoneN=0, kanjiSelHen=null;
+
+  function startKanji(){
+    state='kanji';
+    kanjiDoneN = 0; kanjiSelHen=null;
+    document.getElementById('keys5').textContent = keys;
+    document.getElementById('kanjiDone').textContent = '0';
+    document.getElementById('kanjiResult').textContent = '';
+    kanjiRound = shuffle(KANJI_PAIRS).slice(0, KANJI_TARGET);
+    drawKanji();
+    show('kanjiScreen');
+    startBGM();
+  }
+
+  function drawKanji(){
+    const hens = shuffle(kanjiRound.map(p=>p.hen));
+    const tsus = shuffle(kanjiRound.map(p=>p.tsu));
+    const board = document.getElementById('kanjiBoard');
+    board.innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:8px;">'+
+        '<div style="font-weight:900;color:#888;font-size:12px;">へん</div>'+
+        hens.map(h=>`<button class="nametile hen" data-h="${h}" style="font-size:24px;">${h}</button>`).join('')+
+      '</div>'+
+      '<div style="display:flex;flex-direction:column;gap:8px;">'+
+        '<div style="font-weight:900;color:#888;font-size:12px;">つくり</div>'+
+        tsus.map(t=>`<button class="nametile tsu" data-t="${t}" style="font-size:24px;background:linear-gradient(180deg,#ffb3c1,#e0566b);color:#fff;box-shadow:0 4px 0 #b03a4c;">${t}</button>`).join('')+
+      '</div>';
+    board.querySelectorAll('.hen').forEach(b=> b.onclick = ()=>{
+      if(b.classList.contains('used')) return;
+      board.querySelectorAll('.hen').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel'); kanjiSelHen = b;
+    });
+    board.querySelectorAll('.tsu').forEach(b=> b.onclick = ()=>pickTsu(b));
+  }
+
+  function pickTsu(tsuBtn){
+    if(tsuBtn.classList.contains('used')) return;
+    if(!kanjiSelHen){ return; }   // 先にへんをえらぶ
+    const hen = kanjiSelHen.dataset.h, tsu = tsuBtn.dataset.t;
+    const pair = kanjiRound.find(p=>p.hen===hen && p.tsu===tsu);
+    if(pair){
+      playSE(true);
+      kanjiSelHen.classList.add('used'); kanjiSelHen.classList.remove('sel');
+      tsuBtn.classList.add('used');
+      kanjiSelHen=null;
+      const r = document.getElementById('kanjiResult');
+      r.textContent = '「'+pair.kanji+'」できた！';
+      kanjiDoneN++;
+      document.getElementById('kanjiDone').textContent = kanjiDoneN;
+      if(kanjiDoneN >= KANJI_TARGET){ setTimeout(()=>stageClear(5), 700); }
+    } else {
+      playSE(false);
+      document.getElementById('kanjiBoard').classList.add('shake');
+      setTimeout(()=>document.getElementById('kanjiBoard').classList.remove('shake'), 350);
+    }
+  }
 
   // ===== ボタン =====
   document.getElementById('toStage').onclick   = ()=>show('introScreen');
-  document.getElementById('startGame').onclick = startGame;
-  document.getElementById('replayBtn').onclick = ()=>show('introScreen');
-  document.getElementById('retryBtn').onclick  = startGame;
+  document.getElementById('startGame').onclick = ()=>startStage(1);
+  document.getElementById('replayBtn').onclick = restartAll;
+  document.getElementById('retryBtn').onclick  = ()=>startStage(stage);
+  document.getElementById('niStart').onclick   = ()=>startStage(stage);
+  if(location.hash==='#test'){ window.__t = {startStage, stageClear, get keys(){return keys;}, set keys(v){keys=v;}, get state(){return state;}, get spellWord(){return spellWord;}, get kanjiRound(){return kanjiRound;}, get mathQs(){return mathQs;}, get mathIdx(){return mathIdx;}}; }
 
   arenaSize();
 
