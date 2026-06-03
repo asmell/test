@@ -391,7 +391,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.5.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v2.6.0</div>
   </div>
 
   <!-- ===== ステージ説明 ===== -->
@@ -1072,6 +1072,26 @@
     // 最後にジャーン（和音）
     [523,659,784,1046].forEach(f=> tone(f, t+seq.length*0.13, 0.7, 'triangle', 0.14));
   }
+  // ゲームオーバー：しょんぼり下降音（ザンネン…）
+  function playGameOver(){
+    if(muted) return;
+    ensureAudio(); const t=actx.currentTime;
+    // ファ→ミ♭→レ→シ とだんだん下がる
+    const seq=[[392,0],[349,0.24],[311,0.48],[247,0.76]];
+    seq.forEach(([f,d],i)=>{
+      const last = i===seq.length-1;
+      const dur = last ? 0.8 : 0.24;
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type='sawtooth';
+      o.frequency.setValueAtTime(f, t+d);
+      if(last) o.frequency.exponentialRampToValueAtTime(f*0.78, t+d+dur); // 最後はさらにズーン…
+      o.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(0.0001, t+d);
+      g.gain.linearRampToValueAtTime(0.2, t+d+0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t+d+dur);
+      o.start(t+d); o.stop(t+d+dur+0.05);
+    });
+  }
 
   function addScore(d, x, y){
     score = Math.max(0, score + d);
@@ -1294,7 +1314,7 @@
     cancelAnimationFrame(rafId);
     stopStageClock();
     stopBGM();
-    playSE(false);                    // 失敗の効果音
+    playGameOver();                   // しょんぼり下降音
     show('gameOverScreen');
     setTimeout(()=>{ if(state==='gameover') show('titleScreen'); }, 2600); // 自動でタイトルへ
   }
