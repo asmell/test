@@ -757,8 +757,11 @@
   #finalGameover.on{ opacity:1; pointer-events:auto; }
   #finalGameover .goTitle{ color:#ff5a6e; font-size:42px; font-weight:900; text-shadow:0 0 20px rgba(255,40,70,.85); letter-spacing:3px; }
   #finalGameover .goSub{ color:#fff; font-size:15px; font-weight:700; }
-  #finalGameover button{ border:none; cursor:pointer; border-radius:14px; padding:14px 28px; font-size:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,#ff7a8c,#e23b3b); box-shadow:0 5px 0 #a31f2f; margin-top:8px; }
+  #finalGameover .goBtns{ display:flex; flex-direction:column; gap:12px; margin-top:8px; align-items:center; }
+  #finalGameover button{ border:none; cursor:pointer; border-radius:14px; padding:13px 26px; font-size:17px; font-weight:900; color:#fff; background:linear-gradient(180deg,#ff7a8c,#e23b3b); box-shadow:0 5px 0 #a31f2f; min-width:210px; }
+  #finalGameover #goTitleBtn{ background:linear-gradient(180deg,#9aa6b8,#5b6b82); box-shadow:0 5px 0 #3c485a; }
   #finalGameover button:active{ transform:translateY(3px); box-shadow:0 2px 0 #a31f2f; }
+  #finalGameover #goTitleBtn:active{ box-shadow:0 2px 0 #3c485a; }
   /* ===== ノーミス特別エンディング ===== */
   #perfectScreen{ overflow:hidden; }
   #peSky{ position:absolute; inset:0; z-index:0; background:radial-gradient(circle at 50% 38%,#fff6cf,#ffd86b 38%,#ff9b3d 72%,#e0631f); animation:peGlow 4s ease-in-out infinite; }
@@ -837,7 +840,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.23.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.24.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -1043,7 +1046,10 @@
     <div id="finalGameover">
       <div class="goTitle">ゲームオーバー</div>
       <div class="goSub">校長につかまってしまった…</div>
-      <button id="goRetryBtn">もう一度ちょうせん</button>
+      <div class="goBtns">
+        <button id="goRetryBtn">🔁 もう一度ちょうせん</button>
+        <button id="goTitleBtn">🏠 タイトルにもどる</button>
+      </div>
     </div>
   </div>
 
@@ -2111,7 +2117,7 @@
     {q:"国語：「我田引水」の意味は？", a:["自分に都合よくする","とても急ぐ","正直なこと","美しい景色"], c:0, line:"我田引水…自分本位という意味。"},
     {q:"国語：「割愛」の意味は？", a:["むだを省く","惜しみつつ手放す","強く愛する","大切にしまう"], c:1, line:"割愛…惜しみながら手放すことだ。"},
   ];
-  const FINAL_N = 10;          // 1回の問題数
+  const FINAL_N = 7;          // 1回の問題数
   const FINAL_LIVES = 3;       // 校長戦のライフ
   let finalQ=[], finalQi=0, finalGuard=0, finalTimers=[], finalLives=FINAL_LIVES;
   let perfectRun = true;       // 全問ノーミスかどうか
@@ -2212,6 +2218,7 @@
   }
   function playGameOverJingle(){ if(muted) return; ensureAudio(); const t=actx.currentTime; tone(330,t,0.18,'sawtooth',0.16); tone(294,t+0.18,0.18,'sawtooth',0.16); tone(247,t+0.36,0.45,'sawtooth',0.16); }
   document.getElementById('goRetryBtn').onclick = ()=>{ startFinal(); };   // もう一度校長戦に挑戦
+  document.getElementById('goTitleBtn').onclick = ()=>{ stopBGM(); state='title'; show('titleScreen'); };  // タイトルへもどる
   function playCorrect2(){ if(muted) return; ensureAudio(); const t=actx.currentTime; tone(523,t,0.1,'square',0.16); tone(784,t+0.09,0.16,'square',0.16); }
   function finalClear(){
     document.getElementById('fAura').classList.remove('on');
