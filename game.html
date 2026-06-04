@@ -626,7 +626,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.10.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.11.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -1282,7 +1282,7 @@
   function startGame(){
     arenaSize();
     state = 'playing';
-    hideHint();
+    hideHint(); resetMiss();
     score = 0; timeLeft = TIME_LIMIT;
     spawnTimer = 0; timerAcc = 0; moveDir = 0;
     words.forEach(w=>w.el.remove()); words = [];
@@ -1456,7 +1456,6 @@
       timerAcc -= Math.floor(timerAcc);
       if(timeLeft<=0){ timeLeft=0; updateTime(); return lose(); }
       updateTime();
-      if(timeLeft<=15) showHintBtn();      // 残り15秒でヒント
       if(timeLeft<=10) timePill.classList.add('warn');
     }
 
@@ -1482,7 +1481,7 @@
         const cx = w.x, cy = w.y;
         setTimeout(()=>w.el.remove(), 250);
         if(w.type==='element'){ addScore(+1, cx, cy); logResult('①', `${w.name}（単体）を拾った`, true); }
-        else                  { addScore(-1, cx, cy); logResult('①', `${w.name}（化合物）を拾った`, false); }
+        else                  { addScore(-1, cx, cy); logResult('①', `${w.name}（化合物）を拾った`, false); } addMiss();
         continue;
       }
       // 画面下まで来たら取り逃し→消える
@@ -1655,13 +1654,12 @@
   let stageClock=null, stageTimeLeft=STAGE_TIME;
   function startStageClock(){
     stageTimeLeft = STAGE_TIME;
-    hideHint();                 // ヒントボタンは最初は隠す
+    hideHint(); resetMiss();    // ヒントは最初は隠す／ミス数リセット
     updateStageClock();
     clearInterval(stageClock);
     stageClock = setInterval(()=>{
       stageTimeLeft--;
       updateStageClock();
-      if(stageTimeLeft<=15) showHintBtn();   // 残り15秒でヒント
       if(stageTimeLeft<=0){ stopStageClock(); gameOver(); }
     }, 1000);
   }
@@ -1675,12 +1673,16 @@
     });
   }
 
-  // ===== ヒント =====
+  // ===== ヒント（5回ミスで出る） =====
   const hintBtn = document.getElementById('hintBtn');
   const hintToast = document.getElementById('hintToast');
   let toastTimer = null;
+  let missCount = 0;
+  const HINT_MISSES = 5;
   function showHintBtn(){ hintBtn.classList.remove('hidden'); }
   function hideHint(){ hintBtn.classList.add('hidden'); hintToast.classList.add('hidden'); }
+  function resetMiss(){ missCount = 0; }
+  function addMiss(){ missCount++; if(missCount>=HINT_MISSES) showHintBtn(); }
   function toast(msg){
     hintToast.textContent = msg;
     hintToast.classList.remove('hidden');
@@ -1701,9 +1703,16 @@
       } else {
         toast('そろったら じどうで チェックされるよ');
       }
-    } else if(state==='map'){            // ③ 都道府県：場所ではなく特徴のクイズ風ヒント
+    } else if(state==='map'){            // ③ 都道府県：何地方かをヒント＋その地方を光らせる
       const name = mapQueue[mapDoneN];
-      toast('💡 '+(PREF_HINTS[name] || (name+' をさがそう')));
+      const region = PREF_TO_REGION[name] || '';
+      document.querySelectorAll('#mapBox .prefecture').forEach(g=>{
+        if(PREF_TO_REGION[g.dataset.jp]===region && !g.classList.contains('done')){
+          g.classList.add('hintpref');
+          setTimeout(()=>g.classList.remove('hintpref'), 3500);
+        }
+      });
+      toast('💡 '+name+' は「'+region+'」にあるよ！（光ってる地方）');
     } else if(state==='lock'){           // ④ 金庫：今入力中の次のけた
       const i = Math.min(codeInput.length, codeAns.length-1);
       const ord = ['1','2','3','4','5'][i] || (i+1);
@@ -2013,7 +2022,7 @@
         setTimeout(nextSpell, 500);
       } else {
         playSE(false);
-        logResult('②', `${spellWord.jp}：あなた「${guess}」／正解「${spellWord.en}」`, false);
+        logResult('②', `${spellWord.jp}：あなた「${guess}」／正解「${spellWord.en}」`, false); addMiss();
         const card = document.querySelector('#spellScreen .qcard');
         card.classList.add('shake');
         setTimeout(()=>card.classList.remove('shake'), 350);
@@ -2042,30 +2051,19 @@
   const PREF_POOL = ['北海道','青森','岩手','宮城','福島','新潟','長野','茨城',
                      '東京','静岡','愛知','岐阜','大阪','兵庫','広島','島根',
                      '高知','福岡','熊本','鹿児島','沖縄'];
-  // ③のヒント：その県の特徴（地方・名物・地理）
-  const PREF_HINTS = {
-    '北海道':'日本でいちばん北で、いちばん広い。さっぽろ雪まつり',
-    '青森':'本州のいちばん北。りんごの生産が日本一・ねぶた祭り',
-    '岩手':'本州でいちばん広い。わんこそば・中尊寺',
-    '宮城':'東北地方の中心。牛タン・仙台市',
-    '福島':'東北地方でいちばん南。ももの産地',
-    '新潟':'日本海がわ。お米（コシヒカリ）が有名',
-    '長野':'海がない内陸の県。そば・りんご、冬季五輪',
-    '茨城':'関東地方。納豆で有名',
-    '東京':'日本の首都',
-    '静岡':'富士山・お茶・うなぎ。太平洋がわ',
-    '愛知':'名古屋市。自動車工業（トヨタ）がさかん',
-    '岐阜':'海がない内陸。世界遺産の白川郷',
-    '大阪':'西日本の中心。たこ焼き・お笑い',
-    '兵庫':'神戸市・甲子園球場',
-    '広島':'もみじまんじゅう・平和記念公園（原爆ドーム）',
-    '島根':'出雲大社で有名。日本海がわ',
-    '高知':'四国地方。かつおのたたき・坂本龍馬',
-    '福岡':'九州地方の中心。とんこつラーメン・明太子',
-    '熊本':'ゆるキャラのくまモン・阿蘇山',
-    '鹿児島':'九州でいちばん南。桜島・さつまいも',
-    '沖縄':'日本でいちばん南。あたたかくてシーサーが有名',
+  // ③のヒント：地方（8地方）。ヒント時はその地方の県を光らせる
+  const REGIONS = {
+    '北海道地方':['北海道'],
+    '東北地方':['青森','岩手','宮城','秋田','山形','福島'],
+    '関東地方':['茨城','栃木','群馬','埼玉','千葉','東京','神奈川'],
+    '中部地方':['新潟','富山','石川','福井','山梨','長野','岐阜','静岡','愛知'],
+    '近畿地方':['三重','滋賀','京都','大阪','兵庫','奈良','和歌山'],
+    '中国地方':['鳥取','島根','岡山','広島','山口'],
+    '四国地方':['徳島','香川','愛媛','高知'],
+    '九州地方':['福岡','佐賀','長崎','熊本','大分','宮崎','鹿児島','沖縄'],
   };
+  const PREF_TO_REGION = {};
+  Object.keys(REGIONS).forEach(rg=> REGIONS[rg].forEach(pf=> PREF_TO_REGION[pf]=rg));
   const MAP_TARGET = 8;
   let mapQueue=[], mapDoneN=0;
 
@@ -2170,7 +2168,7 @@
       showMapTarget();
     } else {
       playSE(false);
-      logResult('③', `${target}をさがして→「${g.dataset.jp}」をタップ`, false);
+      logResult('③', `${target}をさがして→「${g.dataset.jp}」をタップ`, false); addMiss();
       g.classList.add('wrong');
       setTimeout(()=>g.classList.remove('wrong'), 400);
     }
@@ -2242,7 +2240,7 @@
         setTimeout(()=>stageClear(4), 1100);
       } else {
         playSE(false);
-        logResult('④', `暗号：あなた「${codeInput}」／正解「${codeAns}」`, false);
+        logResult('④', `暗号：あなた「${codeInput}」／正解「${codeAns}」`, false); addMiss();
         const s=document.getElementById('safe'); s.classList.add('shake');
         setTimeout(()=>s.classList.remove('shake'), 350);
         codeInput=''; renderCode();
@@ -2340,7 +2338,7 @@
       if(kanjiDoneN >= KANJI_TARGET){ setTimeout(()=>stageClear(5), 700); }
     } else {
       playSE(false);
-      logResult('⑤', `${hen}＋${tsu} は漢字にならない`, false);
+      logResult('⑤', `${hen}＋${tsu} は漢字にならない`, false); addMiss();
       document.getElementById('kanjiBoard').classList.add('shake');
       setTimeout(()=>document.getElementById('kanjiBoard').classList.remove('shake'), 350);
     }
