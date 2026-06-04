@@ -723,6 +723,14 @@
     transition:transform .8s ease,opacity .8s ease; filter:drop-shadow(0 6px 6px rgba(0,0,0,.5)); }
   .fPrin img{ width:100%; display:block; }
   .fPrin.step{ transform:translateX(40px); opacity:0; }
+  .fPrin.appear{ opacity:0; transform:translateX(-46%) scale(1.5); }   /* 登場前は見えない・大きい */
+  .fAura{ position:absolute; left:50%; bottom:10%; width:230px; height:260px; transform:translateX(-50%); z-index:2; border-radius:50%;
+    background:radial-gradient(circle, rgba(220,40,70,.55), rgba(150,20,60,.25) 50%, transparent 72%); opacity:0; pointer-events:none; }
+  .fAura.on{ animation:fauraPulse 1.5s ease-in-out infinite; }
+  @keyframes fauraPulse{ 0%,100%{ opacity:.45; transform:translateX(-50%) scale(.92);} 50%{ opacity:.75; transform:translateX(-50%) scale(1.08);} }
+  #finalRedFlash{ position:absolute; inset:0; background:#c0143a; opacity:0; z-index:8; pointer-events:none; }
+  #finalRedFlash.on{ animation:fredfl .5s ease; }
+  @keyframes fredfl{ 0%{opacity:0;} 40%{opacity:.6;} 100%{opacity:0;} }
   .fPlayer{ position:absolute; left:6%; bottom:15%; width:90px; z-index:3; filter:drop-shadow(0 5px 5px rgba(0,0,0,.5)); }
   .fPlayer .charimg,.fPlayer img{ width:100%; display:block; }
   .fGuard{ position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:6; background:#fff; border-radius:999px; padding:6px 16px; font-weight:900; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.2); }
@@ -775,7 +783,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.20.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.21.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -966,7 +974,9 @@
     <div class="fExitLight" id="fExitLight"></div>
     <div class="fExit" id="fExit"></div>
     <div class="fPlayer" id="fPlayer"></div>
-    <div class="fPrin" id="fPrin"><img src=""></div>
+    <div class="fAura" id="fAura"></div>
+    <div class="fPrin appear" id="fPrin"><img src=""></div>
+    <div id="finalRedFlash"></div>
     <div class="fGuard">🛡 校長のガード <b id="guardN">5</b></div>
     <div class="fTitle">★ ファイナルステージ：校長との最終問題！</div>
     <div class="fDialog" id="fDialog"></div>
@@ -1712,7 +1722,12 @@
     3:{m:[67,71,74,74, 72,71,69,67, 69,71,72,72, 71,69,67,67], b:[43,50,47,43], beat:0.18, wave:'triangle'}, // 社会
     4:{m:[69,72,76,72, 74,72,69,67, 69,72,74,76, 72,69,67,69], b:[45,48,52,40], beat:0.145,wave:'square'},   // 数学
     5:{m:[74,76,78,81, 83,81,78,76, 74,78,81,78, 76,74,71,74], b:[50,57,50,45], beat:0.17, wave:'triangle'}, // 国語
+    // 校長戦＝魔王っぽい（暗い短調・低音・ゆっくり）
+    maou:{m:[45,45,48,44, 45,0,41,44, 45,48,51,48, 44,45,41,0], b:[33,33,29,28], beat:0.21, wave:'sawtooth'},
+    // 撃破後＝勇者っぽい（明るいファンファーレ）
+    hero:{m:[72,72,72,76, 79,79,79,84, 83,79,76,79, 81,84,84,84], b:[48,55,53,55], beat:0.15, wave:'square'},
   };
+  let currentBgmKey = 1;
   function setBgmTheme(st){
     const t = BGM_THEMES[st] || BGM_THEMES[1];
     MELODY = t.m; BASS = t.b; BEAT = t.beat; BGM_WAVE = t.wave;
@@ -1746,9 +1761,10 @@
     }
   }
 
-  function startBGM(){
+  function startBGM(themeKey){
     if(muted) return;
-    setBgmTheme(stage);          // 今のステージ（教科）のテーマに
+    currentBgmKey = (themeKey!=null) ? themeKey : stage;
+    setBgmTheme(currentBgmKey);  // テーマ（教科 or maou/hero）に
     if(!actx){
       const AC = window.AudioContext || window.webkitAudioContext;
       actx = new AC();
@@ -1767,7 +1783,7 @@
     muted = !muted;
     muteBtn.textContent = muted ? '🔇' : '🔊';
     if(muted) stopBGM();
-    else if(['playing','spell','map','lock','kanji','final'].includes(state)) startBGM();
+    else if(['playing','spell','map','lock','kanji','final'].includes(state)) startBGM(currentBgmKey);
   });
 
   // ================================================================
@@ -1967,46 +1983,91 @@
     else if(n===5) startKanji();
   }
 
-  // ===== ファイナルステージ：校長との最終問題 =====
-  const FINAL_QS = [
-    {q:"理科：水素（すいそ）は？", a:["単体","化合物"], c:0, line:"ふむ…水素は1種類の原子。単体だ。"},
-    {q:"英語：「つくえ」は？", a:["DESK","DOG","DOOR","DISK"], c:0, line:"つくえ＝DESK。よろしい。"},
-    {q:"社会：大阪は何地方？", a:["関東地方","近畿地方","九州地方","東北地方"], c:1, line:"大阪は近畿地方。地理もできるな。"},
-    {q:"数学：(-3) × 4 = ?", a:["-12","12","-7","7"], c:0, line:"負×正は負。-12。正解だ。"},
-    {q:"国語：氵 ＋ 毎 ＝ ?", a:["海","池","湖","河"], c:0, line:"さんずいに毎で「海」。見事…！"},
+  // ===== ファイナルステージ：校長との最終問題（難しめ・毎回ランダム） =====
+  const FINAL_POOL = [
+    // 理科
+    {q:"理科：化合物はどれ？", a:["水素","酸素","二酸化炭素","鉄"], c:2, line:"二酸化炭素は2種類の原子…化合物だ。"},
+    {q:"理科：BTB液 酸性は何色？", a:["青","緑","黄","赤"], c:2, line:"酸性は黄色。よく知っておるな。"},
+    {q:"理科：化学変化で全体の質量は？", a:["ふえる","へる","変わらない","半分"], c:2, line:"質量保存の法則。変わらん。"},
+    {q:"理科：光が一番速いのは？", a:["水中","ガラス中","空気(真空)中","氷の中"], c:2, line:"真空中が最速。ふむ。"},
+    // 英語
+    {q:"英語：go の過去形は？", a:["goed","went","gone","going"], c:1, line:"went。不規則動詞だ。"},
+    {q:"英語：「美しい」は？", a:["BEAUTIFUL","BEUTIFUL","BEAUTIFULL","BEUTYFUL"], c:0, line:"BEAUTIFUL。つづりに注意。"},
+    {q:"英語：He ___ tennis. (play)", a:["play","plays","played","playing"], c:1, line:"三単現のs。plays。"},
+    {q:"英語：「水曜日」は？", a:["TUESDAY","THURSDAY","WEDNESDAY","SUNDAY"], c:2, line:"WEDNESDAY…難しいぞ。"},
+    // 社会
+    {q:"社会：日本一長い川は？", a:["利根川","信濃川","石狩川","北上川"], c:1, line:"信濃川だ。"},
+    {q:"社会：法律をつくるのは？", a:["内閣","裁判所","国会","天皇"], c:2, line:"国会。三権分立だ。"},
+    {q:"社会：鎌倉幕府を開いたのは？", a:["足利尊氏","源頼朝","徳川家康","織田信長"], c:1, line:"源頼朝。歴史もできるか。"},
+    {q:"社会：三権分立、裁判をするのは？", a:["国会","内閣","裁判所","知事"], c:2, line:"裁判所。よろしい。"},
+    // 数学
+    {q:"数学：-6 −(-9) = ?", a:["-15","-3","3","15"], c:2, line:"3。負の数の引き算。"},
+    {q:"数学：2(x+3)=14 の x は？", a:["4","5","7","8"], c:0, line:"x=4。方程式だ。"},
+    {q:"数学：(-2)³ = ?", a:["-8","8","-6","6"], c:0, line:"-8。3乗。"},
+    {q:"数学：√64 = ?", a:["6","7","8","32"], c:2, line:"8。平方根。"},
+    {q:"数学：5² − 3² = ?", a:["16","4","8","34"], c:0, line:"25-9=16。"},
+    // 国語
+    {q:"国語：「承る」の読みは？", a:["うけたまわる","うけおる","うかがう","たまわる"], c:0, line:"うけたまわる。難読だ。"},
+    {q:"国語：「原因」の対義語は？", a:["理由","結果","要因","原則"], c:1, line:"結果。対義語。"},
+    {q:"国語：「故郷」の読みは？", a:["こきょう","ふるさと","こさと","こごう"], c:0, line:"こきょう。"},
   ];
-  let finalQi=0, finalGuard=5;
+  const FINAL_N = 6;          // 1回の問題数
+  let finalQ=[], finalQi=0, finalGuard=0, finalTimers=[];
   function startFinal(){
     state='final';
-    finalQi=0; finalGuard=5;
+    finalQ = shuffle(FINAL_POOL).slice(0, FINAL_N);   // 毎回ランダム
+    finalQi=0; finalGuard=finalQ.length;
     document.querySelector('#fPrin img').src = window.PRINCIPAL;
     document.getElementById('fPlayer').innerHTML = buildStudent(runIsBoy);
-    document.getElementById('fPrin').classList.remove('step');
+    const prin=document.getElementById('fPrin');
+    prin.classList.remove('step'); prin.classList.add('appear');   // 最初は見えない
+    document.getElementById('fAura').classList.remove('on');
     document.getElementById('fExit').style.transform='translateX(-50%)';
     document.getElementById('fExitLight').style.opacity='0';
     document.getElementById('finalFlash').classList.remove('on');
     document.getElementById('finalStamp').classList.remove('show');
-    document.getElementById('guardN').textContent='5';
-    document.getElementById('fDialog').innerHTML='<span class="who">校長</span><br>ここから先へは行かせん。最終問題に答えてみせろ！';
+    document.getElementById('guardN').textContent=finalGuard;
+    document.getElementById('fQ').innerHTML='';
+    document.getElementById('fDialog').innerHTML='<span class="who">…</span><br>　';
     show('finalScreen');
-    startBGM();
-    setTimeout(renderFinalQ, 1200);
+    startBGM('maou');          // 魔王BGM
+    runFinalIntro();
+  }
+  // 校長の登場シーン（長め）
+  function runFinalIntro(){
+    finalTimers.forEach(clearTimeout); finalTimers=[];
+    const T=(ms,fn)=>finalTimers.push(setTimeout(fn,ms));
+    const dlg=document.getElementById('fDialog');
+    const sc=document.getElementById('finalScreen');
+    const rf=document.getElementById('finalRedFlash');
+    const prin=document.getElementById('fPrin');
+    const aura=document.getElementById('fAura');
+    const flash=()=>{ rf.classList.remove('on'); void rf.offsetWidth; rf.classList.add('on'); };
+    const shake=()=>{ sc.classList.add('shake'); setTimeout(()=>sc.classList.remove('shake'),350); };
+    T(400,  ()=>{ shake(); dlg.innerHTML='<span class="who"></span><br>ゴゴゴ…なんだ、この気配は…！？'; });
+    T(1600, ()=>{ shake(); dlg.innerHTML='<span class="who"></span><br>出口のむこうに、何かがいる…！'; });
+    T(2900, ()=>{ flash(); shake(); prin.classList.remove('appear'); aura.classList.add('on'); playSE(false);
+                  dlg.innerHTML='<span class="who">校長</span><br>……ふっふっふ。'; });
+    T(4300, ()=>{ dlg.innerHTML='<span class="who">校長</span><br>この学校から、逃がしはせん…！'; });
+    T(5700, ()=>{ shake(); dlg.innerHTML='<span class="who">校長</span><br>最終問題、全問正解してみせろ！'; });
+    T(7100, ()=>{ flash(); dlg.innerHTML='<span class="who">校長</span><br>いざ、勝負だ…！！'; });
+    T(8500, ()=>{ renderFinalQ(); });
   }
   function renderFinalQ(){
-    const it=FINAL_QS[finalQi];
-    document.getElementById('fDialog').innerHTML='<span class="who">校長 ・ 第'+(finalQi+1)+'問</span><br>'+it.q;
+    const it=finalQ[finalQi];
+    document.getElementById('fDialog').innerHTML='<span class="who">校長 ・ 第'+(finalQi+1)+'問 / '+finalQ.length+'問</span><br>'+it.q;
     const qbox=document.getElementById('fQ');
     qbox.innerHTML=it.a.map((t,i)=>'<button data-i="'+i+'">'+t+'</button>').join('');
     qbox.querySelectorAll('button').forEach(b=> b.onclick=()=>finalAnswer(+b.dataset.i,b));
   }
   function finalAnswer(i,btn){
-    const it=FINAL_QS[finalQi];
+    const it=finalQ[finalQi];
     if(i===it.c){
       btn.classList.add('ok'); playCorrect2();
       finalGuard--; document.getElementById('guardN').textContent=finalGuard;
       document.getElementById('fDialog').innerHTML='<span class="who">校長</span><br>'+it.line;
       document.getElementById('fQ').querySelectorAll('button').forEach(b=>b.disabled=true);
-      setTimeout(()=>{ finalQi++; if(finalQi>=FINAL_QS.length){ finalClear(); } else { renderFinalQ(); } }, 1100);
+      setTimeout(()=>{ finalQi++; if(finalQi>=finalQ.length){ finalClear(); } else { renderFinalQ(); } }, 1100);
     } else {
       btn.classList.add('ng'); playSE(false);
       const s=document.getElementById('finalScreen'); s.classList.add('shake'); setTimeout(()=>s.classList.remove('shake'),350);
@@ -2015,17 +2076,19 @@
   }
   function playCorrect2(){ if(muted) return; ensureAudio(); const t=actx.currentTime; tone(523,t,0.1,'square',0.16); tone(784,t+0.09,0.16,'square',0.16); }
   function finalClear(){
+    document.getElementById('fAura').classList.remove('on');
     document.getElementById('fDialog').innerHTML='🎉 校長を倒した！！！ 脱出成功！！！';
     document.getElementById('fQ').innerHTML='';
+    startBGM('hero');                                                        // 勇者BGM！
     document.getElementById('fPrin').classList.add('step');                 // 校長が道をあける
-    setTimeout(()=>{ document.getElementById('fExit').style.transform='translateX(-50%) perspective(520px) rotateY(-80deg)'; document.getElementById('fExitLight').style.opacity='1'; playClear(); }, 800); // 出口が開く
-    setTimeout(()=>{ finalWin(); }, 2200);                                  // 脱出成功アニメへ
+    setTimeout(()=>{ document.getElementById('fExit').style.transform='translateX(-50%) perspective(520px) rotateY(-80deg)'; document.getElementById('fExitLight').style.opacity='1'; }, 800); // 出口が開く
+    setTimeout(()=>{ finalWin(); }, 2400);                                  // 脱出成功アニメへ
   }
 
   // 脱出アニメ：解錠→ドアが開く→歩いて出る→脱出成功→クレジット
   function finalWin(){
     state='win';
-    stopBGM();
+    // 勇者BGMは脱出アニメ中も流したままにする（クレジットで止める）
     const scene = document.getElementById('escScene');
     const cap = document.getElementById('escCaption');
     const stamp = document.getElementById('escStamp');
@@ -2047,6 +2110,7 @@
   }
   // 脱出アニメ終了 → 記録を保存 → すぐクレジット
   function endingToCredits(){
+    stopBGM();    // 勇者BGMはここで止める
     const miss = resultsLog.filter(r=>!r.ok).length;
     addRecord({ name: playerName||'ゲスト', ms: totalMs, miss: miss, t: Date.now() });
     showCredits();
