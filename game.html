@@ -616,14 +616,32 @@
   #liScene .liDoorFrame{ position:absolute; right:30px; top:120px; width:96px; height:146px; background:#c9905a; border-radius:8px 8px 0 0; box-shadow:0 4px 0 #a06e3c; }
   #liScene .liLight{ position:absolute; inset:6px; border-radius:4px 4px 0 0; background:radial-gradient(circle at 50% 55%,#fff,#fff3b0); opacity:0; }
   #liScene.open .liLight{ opacity:1; }
-  #liScene .liDoor{ position:absolute; inset:6px; border-radius:4px 4px 0 0; background:linear-gradient(180deg,#8b5a2b,#6b4220); transform-origin:left center; transition:transform .55s ease; z-index:2; }
+  #liScene .liDoor{ position:absolute; inset:6px; border-radius:4px 4px 0 0; background:linear-gradient(180deg,#8b5a2b,#6b4220); transform-origin:left center; transition:transform .45s ease; z-index:2; }
+  #liScene.rattle .liDoorFrame{ animation:lirattle .12s linear 6; }
+  @keyframes lirattle{ 0%,100%{transform:translateX(0);} 50%{transform:translateX(3px);} }
   #liScene .liDoor::after{ content:""; position:absolute; right:12px; top:50%; width:9px; height:9px; border-radius:50%; background:#ffd93d; }
   #liScene.open .liDoor{ transform:perspective(520px) rotateY(-82deg); }   /* 最初は開いている */
   #liScene .liLock{ position:absolute; right:44px; top:182px; font-size:40px; z-index:3; transform:scale(0); }
   #liScene.locked .liLock{ animation:lilock .5s cubic-bezier(.2,1.5,.4,1) forwards; }
   @keyframes lilock{ 0%{transform:scale(2.4) rotate(-20deg);opacity:0;} 60%{transform:scale(.9);opacity:1;} 100%{transform:scale(1) rotate(0);opacity:1;} }
-  #liWalker{ position:absolute; bottom:18px; left:30px; width:74px; z-index:1; }
+  #liWalker{ position:absolute; bottom:18px; left:-70px; width:74px; z-index:1; transition:left 1.7s ease, transform .2s; }
+  #liWalker.in{ left:120px; }                 /* 歩いて中央へ */
+  #liWalker.in #liWalkerInner{ animation:liwalk .32s ease-in-out infinite; }
+  @keyframes liwalk{ 0%,100%{ transform:translateY(0) rotate(-2deg);} 50%{ transform:translateY(-5px) rotate(2deg);} }
+  #liWalker.jump{ animation:lijump .35s ease; }
+  @keyframes lijump{ 0%,100%{transform:translateY(0);} 40%{transform:translateY(-14px);} }
   #liWalker .charimg, #liWalker svg{ width:100%; height:auto; display:block; }
+  #liWalkerInner{ width:100%; }
+  #liEmote{ position:absolute; top:-26px; left:50%; transform:translateX(-50%) scale(0); font-size:30px; z-index:5; }
+  #liEmote.show{ animation:liemote .8s ease; }
+  @keyframes liemote{ 0%{transform:translateX(-50%) scale(0);} 30%{transform:translateX(-50%) scale(1.3);} 60%{transform:translateX(-50%) scale(1);} 100%{transform:translateX(-50%) scale(1); opacity:.0;} }
+  #liBubble{
+    position:absolute; left:50%; top:30%; transform:translateX(-50%) scale(0); z-index:6;
+    background:#fff; color:var(--ink); font-weight:900; font-size:15px; line-height:1.4; text-align:center;
+    padding:10px 16px; border-radius:14px; box-shadow:0 5px 0 rgba(0,0,0,.18); max-width:80%; white-space:nowrap;
+  }
+  #liBubble.show{ animation:libubble .4s ease forwards; }
+  @keyframes libubble{ from{transform:translateX(-50%) scale(.5); opacity:0;} to{transform:translateX(-50%) scale(1); opacity:1;} }
   #liFlash{ position:absolute; inset:0; background:#d63a3a; opacity:0; z-index:4; pointer-events:none; }
   #liScene.trapped #liFlash{ animation:liflash 1s ease forwards; }
   @keyframes liflash{ 0%{opacity:0;} 40%{opacity:.5;} 100%{opacity:0;} }
@@ -715,7 +733,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.18.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.19.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -906,7 +924,8 @@
         <div class="liDoor"></div>
       </div>
       <div class="liLock">🔒</div>
-      <div id="liWalker"></div>
+      <div id="liWalker"><div id="liEmote"></div><div id="liWalkerInner"></div></div>
+      <div id="liBubble"></div>
       <div id="liFlash"></div>
     </div>
   </div>
@@ -1974,7 +1993,13 @@
       c.style.animationDelay = (Math.random()*1.5)+'s';
       ty.appendChild(c);
     }
+    // 何もしなくても、少ししたら自動でクレジットが流れる
+    clearTimeout(autoCreditTimer);
+    autoCreditTimer = setTimeout(()=>{
+      if(!document.getElementById('thankyou').classList.contains('hidden')) showCredits();
+    }, 5000);
   }
+  let autoCreditTimer = null;
 
   // 1プレイの最初に記録などをリセット
   function startRun(){
@@ -1988,19 +2013,36 @@
   }
 
   // 教室に閉じ込められるオープニング
+  let lockInTimers = [];
   function showLockIn(){
     const sc = document.getElementById('liScene');
     const cap = document.getElementById('liCap');
-    sc.classList.remove('open','slam','locked','trapped');
-    document.getElementById('liWalker').innerHTML = buildStudent(runIsBoy);
-    cap.textContent = '🏫 教室に入ると…';
+    const walker = document.getElementById('liWalker');
+    const emote = document.getElementById('liEmote');
+    const bubble = document.getElementById('liBubble');
+    sc.classList.remove('open','slam','locked','trapped','rattle');
+    walker.classList.remove('in','jump');
+    emote.className=''; emote.textContent='';
+    bubble.className=''; bubble.textContent='';
+    document.getElementById('liWalkerInner').innerHTML = buildStudent(runIsBoy);
+    cap.textContent = '🏫 ほうかご、教室にもどると…';
     show('lockInScreen');
     void sc.offsetWidth;
-    setTimeout(()=>{ sc.classList.add('open'); }, 80);                              // ドアが開いている
-    setTimeout(()=>{ sc.classList.remove('open'); sc.classList.add('slam'); playSE(false); cap.textContent='🚪 ドアがバタン！'; }, 900); // 閉まる＋ゆれ
-    setTimeout(()=>{ sc.classList.add('locked'); playSE(false); cap.textContent='🔒 カギがかかった…！'; }, 1700);   // ロック
-    setTimeout(()=>{ sc.classList.add('trapped'); cap.textContent='😱 とじこめられた…！'; }, 2400);                 // 赤フラッシュ
-    setTimeout(()=>{ show('introScreen'); }, 3500);                                 // 説明へ
+    lockInTimers.forEach(clearTimeout); lockInTimers = [];
+    const T = (ms,fn)=> lockInTimers.push(setTimeout(fn, ms));
+    const emo = (e)=>{ emote.textContent=e; emote.className=''; void emote.offsetWidth; emote.className='show'; };
+
+    T(120,  ()=>{ sc.classList.add('open'); });                 // ドアが開いている
+    T(400,  ()=>{ walker.classList.add('in'); });               // 歩いて入ってくる
+    T(2200, ()=>{ walker.classList.remove('in'); cap.textContent='🤔 あれ？ だれもいない…'; }); // 中央で止まる
+    T(3400, ()=>{ sc.classList.remove('open'); sc.classList.add('slam'); playSE(false);
+                  walker.classList.add('jump'); emo('❗'); cap.textContent='🚪 バタン！ ドアがしまった！'; }); // 閉まる
+    T(4200, ()=>{ walker.classList.remove('jump'); });
+    T(4700, ()=>{ sc.classList.add('rattle'); playSE(false); emo('💦'); cap.textContent='ガチャガチャ…！ あかない！'; }); // ドアをゆらす
+    T(5900, ()=>{ sc.classList.remove('rattle'); sc.classList.add('locked'); playSE(false); cap.textContent='🔒 カギがかかってる…！'; }); // ロック
+    T(6900, ()=>{ sc.classList.add('trapped'); emo('😱'); cap.textContent='😱 教室にとじこめられた…！'; }); // 赤フラッシュ
+    T(8200, ()=>{ bubble.textContent='ミニゲームをクリアして 脱出しよう！'; bubble.className=''; void bubble.offsetWidth; bubble.className='show'; cap.textContent='💡 どうする…！？'; });
+    T(10400,()=>{ show('introScreen'); });                      // 説明へ
   }
   // ぜんぶ最初から
   function restartAll(){ startRun(); }
