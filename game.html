@@ -59,8 +59,9 @@
   #gameScreen{ position:absolute; inset:0; z-index:10; }
   #classroom{
     position:absolute; inset:0;
+    /* ①は理科室（青系） */
     background:
-      linear-gradient(180deg,#ffe0d0 0%,#ffd0bc 62%, #f0b59a 62%, #e0a486 100%);
+      linear-gradient(180deg,#dceff7 0%,#c7e4f0 62%, #a7c3cc 62%, #8fb0ba 100%);
   }
   /* 黒板 */
   .board{
@@ -140,6 +141,19 @@
     width:86%; max-width:340px; text-align:center;
     padding:10px 16px; border-radius:14px; box-shadow:0 6px 14px rgba(0,0,0,.3);
   }
+  /* コンボ表示 */
+  #comboPop{
+    position:absolute; left:50%; top:30%; transform:translateX(-50%); z-index:45; pointer-events:none;
+    font-weight:900; font-size:34px; color:#fff; white-space:nowrap; text-align:center;
+    text-shadow:0 3px 0 #e0922f,0 6px 0 #c4701c,0 8px 12px rgba(0,0,0,.35);
+  }
+  #comboPop.show{ animation:comboPop .8s ease both; }
+  @keyframes comboPop{
+    0%{ transform:translateX(-50%) scale(.3) rotate(-8deg); opacity:0; }
+    35%{ transform:translateX(-50%) scale(1.25) rotate(4deg); opacity:1; }
+    55%{ transform:translateX(-50%) scale(1) rotate(0); opacity:1; }
+    100%{ transform:translateX(-50%) translateY(-26px) scale(1); opacity:0; }
+  }
   .hintglow{ outline:4px solid #ffd93d !important; border-radius:10px;
     animation:hintblink .6s steps(2) 4; }
   @keyframes hintblink{ 50%{ filter:brightness(1.4); } }
@@ -203,20 +217,32 @@
 
   /* ===== ミニゲーム②③④ 共通 ===== */
   /* 教室の背景（3D・奥行きパース）＝待機画面とミニゲーム共通 */
-  .room{ overflow:hidden; }
+  /* 教室の色（CSS変数）。ステージごとにテーマ切替 */
+  .room{
+    overflow:hidden;
+    --wallL:#a4cb8a; --wallR:#c4e1ae; --wallB1:#d3ecc2; --wallB2:#c3e3ad;
+    --ceil1:#eef6e7; --ceil2:#e2eed7; --floor1:#cca46a; --floor2:#b3823f;
+    --roomlabel:"🔑 ESCAPE";
+  }
   .screen.top{ justify-content:flex-start; padding-top:16px; gap:12px; }
   .room3d{ position:absolute; inset:0; z-index:-1; overflow:hidden; }  /* 中身より後ろ */
   .room3d .r3{ position:absolute; inset:0; }
-  .r3-ceiling{ background:linear-gradient(180deg,#eef6e7,#e2eed7); clip-path:polygon(0 0,100% 0,67% 22%,33% 22%); }
-  .r3-left{ background:linear-gradient(90deg,#a4cb8a,#c4e1ae); clip-path:polygon(0 0,33% 22%,33% 50%,0 100%); }
-  .r3-right{ background:linear-gradient(90deg,#c4e1ae,#a4cb8a); clip-path:polygon(100% 0,67% 22%,67% 50%,100% 100%); }
-  .r3-back{ background:linear-gradient(180deg,#d3ecc2,#c3e3ad); clip-path:polygon(33% 22%,67% 22%,67% 50%,33% 50%); }
+  .r3-ceiling{ background:linear-gradient(180deg,var(--ceil1),var(--ceil2)); clip-path:polygon(0 0,100% 0,67% 22%,33% 22%); }
+  .r3-left{ background:linear-gradient(90deg,var(--wallL),var(--wallR)); clip-path:polygon(0 0,33% 22%,33% 50%,0 100%); }
+  .r3-right{ background:linear-gradient(90deg,var(--wallR),var(--wallL)); clip-path:polygon(100% 0,67% 22%,67% 50%,100% 100%); }
+  .r3-back{ background:linear-gradient(180deg,var(--wallB1),var(--wallB2)); clip-path:polygon(33% 22%,67% 22%,67% 50%,33% 50%); }
   .r3-floor{
     clip-path:polygon(33% 50%,67% 50%,100% 100%,0 100%);
     background:
       conic-gradient(from 200deg at 50% 38%, transparent 0 1.4deg, rgba(90,55,20,.25) 1.4deg 2.1deg, transparent 2.1deg 7deg),
-      linear-gradient(180deg,#ccA46a 0%,#b3823f 100%);
+      linear-gradient(180deg,var(--floor1) 0%,var(--floor2) 100%);
   }
+  /* テーマ：②英語=きょうしつ／③社会=としょしつ／④数学=すうがくしつ／⑤国語=こくごしつ／①理科=りかしつ */
+  .room-eng { --wallL:#cdbb8e; --wallR:#e6d6ad; --wallB1:#efe2bd; --wallB2:#e2d1a3; --ceil1:#f6efd9; --ceil2:#ece0c2; --floor1:#cca46a; --floor2:#b3823f; --roomlabel:"📕 きょうしつ"; }
+  .room-soc { --wallL:#c9a87e; --wallR:#e0c39a; --wallB1:#e8d2af; --wallB2:#d8bd90; --ceil1:#f3e6d2; --ceil2:#e7d3b8; --floor1:#b98a55; --floor2:#9c6f3c; --roomlabel:"📚 としょしつ"; }
+  .room-math{ --wallL:#a8a0d0; --wallR:#c8c2e8; --wallB1:#d6cff0; --wallB2:#c3baea; --ceil1:#eee9f8; --ceil2:#e0d8f2; --floor1:#9a8fb0; --floor2:#7d7396; --roomlabel:"📐 すうがくしつ"; }
+  .room-jp  { --wallL:#d0a3a0; --wallR:#ecc3bf; --wallB1:#f0d0cc; --wallB2:#e3b3ad; --ceil1:#f6e3df; --ceil2:#ecd0ca; --floor1:#caa46a; --floor2:#9c6f3c; --roomlabel:"🖌️ こくごしつ"; }
+  .room-sci { --wallL:#8fbcd0; --wallR:#bfe0ee; --wallB1:#cce8f2; --wallB2:#aed6e6; --ceil1:#e7f3f8; --ceil2:#d3e8f0; --floor1:#9ab0b8; --floor2:#73909a; --roomlabel:"🧪 りかしつ"; }
   /* 黒板（奥の壁） */
   .r3-board{
     position:absolute; left:36%; top:26%; width:28%; height:17%;
@@ -224,7 +250,8 @@
     box-shadow:inset 0 0 14px rgba(0,0,0,.35), 0 3px 0 #a06e3c;
     display:flex; align-items:center; justify-content:center;
   }
-  .r3-board span{ color:#eafff1; font-weight:900; font-size:12px; letter-spacing:1px; opacity:.92; }
+  .r3-board span{ color:#eafff1; font-weight:900; font-size:11px; letter-spacing:1px; opacity:.92; }
+  .r3-board span::after{ content:var(--roomlabel); }
   /* 窓（左の壁・パース） */
   .r3-window{
     position:absolute; left:3.5%; top:24%; width:16%; height:36%;
@@ -628,7 +655,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.14.1</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.15.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -755,7 +782,7 @@
   </div>
 
   <!-- ===== ミニゲーム② 英語スペル並べ ===== -->
-  <div id="spellScreen" class="screen top room hidden">
+  <div id="spellScreen" class="screen top room room-eng hidden">
     <div class="keybar">🔑 <span id="keys2">1</span>/5 ・ といた数 <span id="spellDone">0</span>/6 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">② えいごスペルならべ</div>
     <div class="qcard">
@@ -770,7 +797,7 @@
   </div>
 
   <!-- ===== ミニゲーム③ 都道府県パズル ===== -->
-  <div id="mapScreen" class="screen top room hidden">
+  <div id="mapScreen" class="screen top room room-soc hidden">
     <div class="keybar">🔑 <span id="keys3">2</span>/5 ・ 見つけた数 <span id="mapDone">0</span>/8 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">③ 都道府県パズル</div>
     <div id="mapTarget">「<span id="mapName">北海道</span>」をタップ！</div>
@@ -786,7 +813,7 @@
   </div>
 
   <!-- ===== ミニゲーム④ 金庫の暗号をとく ===== -->
-  <div id="lockScreen" class="screen top room hidden">
+  <div id="lockScreen" class="screen top room room-math hidden">
     <div class="keybar">🔑 <span id="keys4">3</span>/5 ・ 金庫の暗号 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">④ 金庫の暗号をとけ！</div>
     <div id="clueCard">
@@ -810,7 +837,7 @@
     <div class="ministage" id="escCaption" style="font-size:20px;">🔑 5つのカギで かぎが開く…！</div>
     <div id="escScene">
       <!-- 教室 -->
-      <div class="esc-board"></div>
+      <div class="esc-board"><span>またあそんでね</span></div>
       <div class="escWin" style="left:10px;"></div>
       <div class="escWin" style="left:78px;"></div>
       <div class="esc-floor"></div>
@@ -846,7 +873,7 @@
   </div>
 
   <!-- ===== ミニゲーム⑤ 部首とつくりの組み合わせ ===== -->
-  <div id="kanjiScreen" class="screen top room hidden">
+  <div id="kanjiScreen" class="screen top room room-jp hidden">
     <div class="keybar">🔑 <span id="keys5">4</span>/5 ・ できた漢字 <span id="kanjiDone">0</span>/5 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">⑤ 部首とつくりの組み合わせ</div>
     <div id="kanjiHint" style="color:#1f1a29;font-weight:900;font-size:16px;background:rgba(255,255,255,.95);border-radius:999px;padding:5px 16px;box-shadow:0 3px 0 rgba(0,0,0,.12);">へん と つくり をえらんで漢字を作ろう！</div>
@@ -859,6 +886,7 @@
   <!-- 残り15秒で出るヒントボタン＆ヒント表示 -->
   <button id="hintBtn" class="hidden">💡 ヒント</button>
   <div id="hintToast" class="hidden"></div>
+  <div id="comboPop" class="hidden"></div>
 
 </div>
 
@@ -1372,7 +1400,7 @@
         w.el.classList.add('caught');
         const cx = w.x, cy = w.y;
         setTimeout(()=>w.el.remove(), 250);
-        if(w.type==='element'){ addScore(+1, cx, cy); logResult('①', `${w.name}（単体）を拾った`, true); }
+        if(w.type==='element'){ addScore(+1, cx, cy); logResult('①', `${w.name}（単体）を拾った`, true); addCombo(); }
         else                  { addScore(-1, cx, cy); logResult('①', `${w.name}（化合物）を拾った`, false); addMiss(); }
         continue;
       }
@@ -1580,8 +1608,24 @@
   }
   function showHintBtn(){ updateHintBtn(); hintBtn.classList.remove('hidden'); }
   function hideHint(){ hintBtn.classList.add('hidden'); hintToast.classList.add('hidden'); }
-  function resetMiss(){ missCount = 0; hintUses = 0; }
-  function addMiss(){ missCount++; if(missCount>=HINT_MISSES) showHintBtn(); }
+  function resetMiss(){ missCount = 0; hintUses = 0; combo = 0; }
+  function addMiss(){ missCount++; combo = 0; if(missCount>=HINT_MISSES) showHintBtn(); }
+
+  // ===== コンボ（連続正解） =====
+  let combo = 0;
+  const comboPop = document.getElementById('comboPop');
+  let comboTimer = null;
+  function addCombo(){
+    combo++;
+    if(combo>=2){
+      const emo = combo>=8?'🌟':combo>=5?'🔥':'✨';
+      comboPop.textContent = emo+' '+combo+' コンボ！';
+      comboPop.classList.remove('hidden','show');
+      void comboPop.offsetWidth;            // アニメ再生のリセット
+      comboPop.classList.add('show');
+      if(combo>=3) playClear();             // 3コンボ以上で軽い効果音
+    }
+  }
   function toast(msg){
     hintToast.textContent = msg;
     hintToast.classList.remove('hidden');
@@ -1962,7 +2006,7 @@
       const guess = spellInput.map(x=>x.c).join('');
       if(guess === spellWord.en){
         playSE(true);
-        logResult('②', `${spellWord.jp} → ${spellWord.en}`, true);
+        logResult('②', `${spellWord.jp} → ${spellWord.en}`, true); addCombo();
         spellDoneN++;
         document.getElementById('spellDone').textContent = spellDoneN;
         if(spellDoneN >= SPELL_TARGET){ setTimeout(()=>stageClear(2), 500); return; }
@@ -2106,7 +2150,7 @@
     const target = mapQueue[mapDoneN];
     if(g.dataset.jp === target){
       playSE(true);
-      logResult('③', `${target} を見つけた`, true);
+      logResult('③', `${target} を見つけた`, true); addCombo();
       g.classList.add('done');
       mapDoneN++;
       document.getElementById('mapDone').textContent = mapDoneN;
@@ -2301,7 +2345,7 @@
     const pair = kanjiRound.find(p=>p.hen===hen && p.tsu===tsu);
     if(pair){
       playSE(true);
-      logResult('⑤', `${hen}＋${tsu}＝${pair.kanji}`, true);
+      logResult('⑤', `${hen}＋${tsu}＝${pair.kanji}`, true); addCombo();
       kanjiSelHen.classList.add('used'); kanjiSelHen.classList.remove('sel');
       tsuBtn.classList.add('used');
       kanjiSelHen=null;
@@ -2356,7 +2400,7 @@
   // 3D教室の背景を各画面に差し込む
   const ROOM3D = '<div class="r3 r3-ceiling"></div><div class="r3 r3-left"></div>'
     + '<div class="r3 r3-right"></div><div class="r3 r3-back"></div><div class="r3 r3-floor"></div>'
-    + '<div class="r3-light"></div><div class="r3-board"><span>🔑 ESCAPE</span></div>'
+    + '<div class="r3-light"></div><div class="r3-board"><span></span></div>'
     + '<div class="r3-window"></div>'
     + '<div class="r3-door"><div class="dframe"></div><div class="dseam"></div><div class="dk"></div></div>';
   document.querySelectorAll('.room').forEach(el=>{
