@@ -628,7 +628,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.13.1</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.14.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -1373,7 +1373,7 @@
         const cx = w.x, cy = w.y;
         setTimeout(()=>w.el.remove(), 250);
         if(w.type==='element'){ addScore(+1, cx, cy); logResult('①', `${w.name}（単体）を拾った`, true); }
-        else                  { addScore(-1, cx, cy); logResult('①', `${w.name}（化合物）を拾った`, false); } addMiss();
+        else                  { addScore(-1, cx, cy); logResult('①', `${w.name}（化合物）を拾った`, false); addMiss(); }
         continue;
       }
       // 画面下まで来たら取り逃し→消える
@@ -1950,9 +1950,6 @@
   // =========================================================
   // 難易度：中1〜中2 地理（本物の日本地図で都道府県をタップ）
   // タップしやすい大きめ＆有名な県を出題候補に
-  const PREF_POOL = ['北海道','青森','岩手','宮城','福島','新潟','長野','茨城',
-                     '東京','静岡','愛知','岐阜','大阪','兵庫','広島','島根',
-                     '高知','福岡','熊本','鹿児島','沖縄'];
   // ③のヒント：地方（8地方）。ヒント時はその地方の県を光らせる
   const REGIONS = {
     '北海道地方':['北海道'],
@@ -1966,6 +1963,8 @@
   };
   const PREF_TO_REGION = {};
   Object.keys(REGIONS).forEach(rg=> REGIONS[rg].forEach(pf=> PREF_TO_REGION[pf]=rg));
+  // 出題は全47都道府県（ズームできるので小さい県もOK）
+  const PREF_POOL = Object.values(REGIONS).reduce((a,b)=>a.concat(b), []);
   const MAP_TARGET = 8;
   let mapQueue=[], mapDoneN=0;
 
@@ -2161,18 +2160,46 @@
   // =========================================================
   // 難易度：中1〜中2で習う漢字（へん＋つくり＝漢字）
   const KANJI_PAIRS = [
-    {hen:'金', tsu:'同', kanji:'銅'},
+    // 日
+    {hen:'日', tsu:'寺', kanji:'時'}, {hen:'日', tsu:'月', kanji:'明'}, {hen:'日', tsu:'青', kanji:'晴'},
+    // 亻（にんべん）
+    {hen:'亻', tsu:'木', kanji:'休'}, {hen:'亻', tsu:'本', kanji:'体'}, {hen:'亻', tsu:'主', kanji:'住'},
+    {hen:'亻', tsu:'乍', kanji:'作'}, {hen:'亻', tsu:'言', kanji:'信'},
+    // 氵（さんずい）
+    {hen:'氵', tsu:'毎', kanji:'海'}, {hen:'氵', tsu:'羊', kanji:'洋'}, {hen:'氵', tsu:'酉', kanji:'酒'},
+    {hen:'氵', tsu:'由', kanji:'油'}, {hen:'氵', tsu:'台', kanji:'治'}, {hen:'氵', tsu:'先', kanji:'洗'},
+    {hen:'氵', tsu:'可', kanji:'河'}, {hen:'氵', tsu:'夜', kanji:'液'},
+    // 木（きへん）
+    {hen:'木', tsu:'反', kanji:'板'}, {hen:'木', tsu:'主', kanji:'柱'}, {hen:'木', tsu:'公', kanji:'松'},
+    {hen:'木', tsu:'票', kanji:'標'}, {hen:'木', tsu:'几', kanji:'机'}, {hen:'木', tsu:'交', kanji:'校'},
+    {hen:'木', tsu:'艮', kanji:'根'},
+    // 言（ごんべん）
+    {hen:'言', tsu:'舌', kanji:'話'}, {hen:'言', tsu:'己', kanji:'記'}, {hen:'言', tsu:'売', kanji:'読'},
+    {hen:'言', tsu:'吾', kanji:'語'}, {hen:'言', tsu:'果', kanji:'課'}, {hen:'言', tsu:'周', kanji:'調'},
+    {hen:'言', tsu:'平', kanji:'評'}, {hen:'言', tsu:'忍', kanji:'認'},
+    // 糸（いとへん）
+    {hen:'糸', tsu:'田', kanji:'細'}, {hen:'糸', tsu:'冬', kanji:'終'}, {hen:'糸', tsu:'且', kanji:'組'},
+    {hen:'糸', tsu:'氏', kanji:'紙'}, {hen:'糸', tsu:'泉', kanji:'線'}, {hen:'糸', tsu:'吉', kanji:'結'},
     {hen:'糸', tsu:'責', kanji:'績'},
-    {hen:'扌', tsu:'召', kanji:'招'},
-    {hen:'言', tsu:'平', kanji:'評'},
-    {hen:'氵', tsu:'夜', kanji:'液'},
-    {hen:'木', tsu:'票', kanji:'標'},
-    {hen:'言', tsu:'果', kanji:'課'},
-    {hen:'氵', tsu:'可', kanji:'河'},
-    {hen:'阝', tsu:'祭', kanji:'際'},
-    {hen:'言', tsu:'忍', kanji:'認'},
-    {hen:'木', tsu:'公', kanji:'松'},
-    {hen:'女', tsu:'未', kanji:'妹'},
+    // 扌（てへん）
+    {hen:'扌', tsu:'召', kanji:'招'}, {hen:'扌', tsu:'寺', kanji:'持'}, {hen:'扌', tsu:'旨', kanji:'指'},
+    {hen:'扌', tsu:'丁', kanji:'打'}, {hen:'扌', tsu:'合', kanji:'拾'},
+    // 女（おんなへん）
+    {hen:'女', tsu:'未', kanji:'妹'}, {hen:'女', tsu:'台', kanji:'始'}, {hen:'女', tsu:'生', kanji:'姓'},
+    // 金（かねへん）
+    {hen:'金', tsu:'同', kanji:'銅'}, {hen:'金', tsu:'艮', kanji:'銀'}, {hen:'金', tsu:'十', kanji:'針'},
+    {hen:'金', tsu:'失', kanji:'鉄'},
+    // 土（つちへん）
+    {hen:'土', tsu:'成', kanji:'城'}, {hen:'土', tsu:'也', kanji:'地'}, {hen:'土', tsu:'反', kanji:'坂'},
+    // 口（くちへん）
+    {hen:'口', tsu:'未', kanji:'味'}, {hen:'口', tsu:'鳥', kanji:'鳴'},
+    // 宀（うかんむり）
+    {hen:'宀', tsu:'子', kanji:'字'}, {hen:'宀', tsu:'女', kanji:'安'}, {hen:'宀', tsu:'寸', kanji:'守'},
+    {hen:'宀', tsu:'至', kanji:'室'},
+    // 艹（くさかんむり）
+    {hen:'艹', tsu:'化', kanji:'花'}, {hen:'艹', tsu:'早', kanji:'草'},
+    // 阝
+    {hen:'阝', tsu:'祭', kanji:'際'}, {hen:'阝', tsu:'完', kanji:'院'}, {hen:'阝', tsu:'方', kanji:'防'},
   ];
   const KANJI_TARGET = 5;
   let kanjiRound=[], kanjiDoneN=0, kanjiSelHen=null;
