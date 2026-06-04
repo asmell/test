@@ -700,18 +700,29 @@
 
   /* ===== ファイナルステージ（校長バトル） ===== */
   #finalScreen{ justify-content:flex-start; padding:0; background:#10131c; }
-  /* ダークな教室 */
+  /* 校長室 */
   #finalRoom{ position:absolute; inset:0; overflow:hidden;
-    background:linear-gradient(180deg,#242a3c 0 62%, #3a2c1c 62% 64%, #281e12 64% 100%); }
-  #finalRoom .fboard{ position:absolute; top:8%; left:7%; width:150px; height:74px;
-    background:linear-gradient(180deg,#1f3a2b,#16291f); border:7px solid #5a4129; border-radius:6px;
-    box-shadow:inset 0 0 16px rgba(0,0,0,.5); }
-  #finalRoom .fwin{ position:absolute; top:13%; width:56px; height:74px;
-    background:linear-gradient(180deg,#2a3a6a,#161f3c); border:5px solid #4a5170; border-radius:5px;
-    box-shadow:inset 0 0 14px rgba(150,180,255,.25); }
-  #finalRoom .fwin::after{ content:""; position:absolute; inset:0; border-left:3px solid #4a5170; left:50%; }
-  #finalRoom .ffloorline{ position:absolute; left:0; right:0; top:62%; height:3px; background:#5a4128; }
-  #finalRoom .fvignette{ position:absolute; inset:0; background:radial-gradient(circle at 50% 45%, transparent 45%, rgba(0,0,0,.55)); }
+    background:linear-gradient(180deg,#4a3826 0 62%, #6a2f2f 62% 63.6%, #531e1e 63.6% 100%); }  /* 木の壁＋赤じゅうたん */
+  #finalRoom .fwall{ position:absolute; left:0; right:0; top:0; height:62%;
+    background:repeating-linear-gradient(90deg, rgba(0,0,0,.14) 0 1px, transparent 1px 58px),
+               linear-gradient(180deg,#5a452e,#41311f); }  /* 木目パネル */
+  #finalRoom .fshelf{ position:absolute; left:4%; top:9%; width:82px; height:158px;
+    border:5px solid #2a1c10; border-radius:3px; box-shadow:inset 0 0 0 2px #3a2a18;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 33px, #2a1c10 33px 38px),
+      repeating-linear-gradient(90deg,#b5503c 0 8px,#c9a04a 8px 15px,#5b8fb0 15px 21px,#7aa85b 21px 28px,#a85ba8 28px 34px,#d08a3a 34px 40px); }
+  #finalRoom .fframe{ position:absolute; right:6%; top:10%; width:70px; height:56px;
+    background:#f3e8c8; border:5px solid #d0a84a; border-radius:3px;
+    box-shadow:0 3px 0 rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center;
+    color:#8a6a2a; font-weight:900; font-size:13px; letter-spacing:1px; }
+  #finalRoom .fframe2{ position:absolute; right:9%; top:32%; width:48px; height:40px;
+    background:linear-gradient(180deg,#cfe3f0,#9fb8c8); border:5px solid #6b4a2c; border-radius:3px;
+    box-shadow:0 3px 0 rgba(0,0,0,.3); }  /* 校長の肖像っぽい額 */
+  #finalRoom .fplant{ position:absolute; left:6%; top:46%; width:30px; height:46px;
+    background:radial-gradient(circle at 50% 30%, #3f8f4f 0 16px, transparent 17px), linear-gradient(180deg,transparent 34%, #8a5a2b 34%);
+    border-radius:4px; }  /* 観葉植物 */
+  #finalRoom .ffloorline{ position:absolute; left:0; right:0; top:62%; height:4px; background:#7a1f1f; }
+  #finalRoom .fvignette{ position:absolute; inset:0; background:radial-gradient(circle at 50% 45%, transparent 45%, rgba(0,0,0,.5)); }
   /* 出口ドア（床に着く：下辺が床ライン62%） */
   .fExit{ position:absolute; left:50%; top:35%; transform:translateX(-50%); width:104px; height:27%;
     background:linear-gradient(180deg,#7a542f,#4a3018); border:5px solid #2f1f12; border-radius:7px 7px 0 0;
@@ -783,7 +794,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.21.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.22.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -965,9 +976,11 @@
   <!-- ===== ファイナルステージ（校長との最終問題） ===== -->
   <div id="finalScreen" class="screen hidden">
     <div id="finalRoom">
-      <div class="fboard"></div>
-      <div class="fwin" style="left:60px;"></div>
-      <div class="fwin" style="left:128px;"></div>
+      <div class="fwall"></div>
+      <div class="fshelf"></div>
+      <div class="fframe">賞状</div>
+      <div class="fframe2"></div>
+      <div class="fplant"></div>
       <div class="ffloorline"></div>
       <div class="fvignette"></div>
     </div>
@@ -1726,6 +1739,8 @@
     maou:{m:[45,45,48,44, 45,0,41,44, 45,48,51,48, 44,45,41,0], b:[33,33,29,28], beat:0.21, wave:'sawtooth'},
     // 撃破後＝勇者っぽい（明るいファンファーレ）
     hero:{m:[72,72,72,76, 79,79,79,84, 83,79,76,79, 81,84,84,84], b:[48,55,53,55], beat:0.15, wave:'square'},
+    // クレジット＝パレードっぽい（明るい行進曲・はずむマーチ）
+    parade:{m:[72,76,79,84, 83,79,76,79, 81,84,81,79, 77,79,76,72], b:[48,55,48,55], beat:0.16, wave:'square'},
   };
   let currentBgmKey = 1;
   function setBgmTheme(st){
@@ -1800,6 +1815,7 @@
   let stageStartMs = 0;       // いまのステージ開始時刻
   function logResult(stage, text, ok){ resultsLog.push({stage, text, ok}); }
   function showResults(header){
+    stopBGM();   // パレードBGMはここで止める
     document.getElementById('resultTitle').textContent = header;
     const ok = resultsLog.filter(r=>r.ok).length;
     const ng = resultsLog.length - ok;
@@ -1985,31 +2001,35 @@
 
   // ===== ファイナルステージ：校長との最終問題（難しめ・毎回ランダム） =====
   const FINAL_POOL = [
-    // 理科
+    // 理科（中1〜中2）
     {q:"理科：化合物はどれ？", a:["水素","酸素","二酸化炭素","鉄"], c:2, line:"二酸化炭素は2種類の原子…化合物だ。"},
-    {q:"理科：BTB液 酸性は何色？", a:["青","緑","黄","赤"], c:2, line:"酸性は黄色。よく知っておるな。"},
     {q:"理科：化学変化で全体の質量は？", a:["ふえる","へる","変わらない","半分"], c:2, line:"質量保存の法則。変わらん。"},
-    {q:"理科：光が一番速いのは？", a:["水中","ガラス中","空気(真空)中","氷の中"], c:2, line:"真空中が最速。ふむ。"},
-    // 英語
+    {q:"理科：水の電気分解 陰極に出る気体は？", a:["酸素","水素","窒素","塩素"], c:1, line:"陰極は水素。体積比は2:1だ。"},
+    {q:"理科：6V・抵抗2Ωに流れる電流は？", a:["2A","3A","8A","12A"], c:1, line:"6÷2=3A。オームの法則だ。"},
+    {q:"理科：種子をつくらず胞子でふえるのは？", a:["アサガオ","イネ","シダ","マツ"], c:2, line:"シダ植物。胞子でふえる。"},
+    // 英語（中1〜中2）
     {q:"英語：go の過去形は？", a:["goed","went","gone","going"], c:1, line:"went。不規則動詞だ。"},
     {q:"英語：「美しい」は？", a:["BEAUTIFUL","BEUTIFUL","BEAUTIFULL","BEUTYFUL"], c:0, line:"BEAUTIFUL。つづりに注意。"},
-    {q:"英語：He ___ tennis. (play)", a:["play","plays","played","playing"], c:1, line:"三単現のs。plays。"},
+    {q:"英語：good の比較級は？", a:["gooder","more good","better","best"], c:2, line:"better。不規則変化だ。"},
     {q:"英語：「水曜日」は？", a:["TUESDAY","THURSDAY","WEDNESDAY","SUNDAY"], c:2, line:"WEDNESDAY…難しいぞ。"},
-    // 社会
+    {q:"英語：I have ___ apple. に入るのは？", a:["a","an","the","×"], c:1, line:"母音の前は an だ。"},
+    // 社会（中1〜中2 地理・歴史）
     {q:"社会：日本一長い川は？", a:["利根川","信濃川","石狩川","北上川"], c:1, line:"信濃川だ。"},
-    {q:"社会：法律をつくるのは？", a:["内閣","裁判所","国会","天皇"], c:2, line:"国会。三権分立だ。"},
     {q:"社会：鎌倉幕府を開いたのは？", a:["足利尊氏","源頼朝","徳川家康","織田信長"], c:1, line:"源頼朝。歴史もできるか。"},
-    {q:"社会：三権分立、裁判をするのは？", a:["国会","内閣","裁判所","知事"], c:2, line:"裁判所。よろしい。"},
-    // 数学
+    {q:"社会：1600年 天下分け目の戦いは？", a:["桶狭間の戦い","関ヶ原の戦い","長篠の戦い","壇ノ浦の戦い"], c:1, line:"関ヶ原の戦いだ。"},
+    {q:"社会：面積が最も大きい都道府県は？", a:["岩手県","長野県","北海道","新潟県"], c:2, line:"北海道。地理の基本。"},
+    {q:"社会：参勤交代を定めた人物は？", a:["徳川家光","豊臣秀吉","織田信長","徳川家康"], c:0, line:"徳川家光だ。"},
+    // 数学（中1〜中2）
     {q:"数学：-6 −(-9) = ?", a:["-15","-3","3","15"], c:2, line:"3。負の数の引き算。"},
     {q:"数学：2(x+3)=14 の x は？", a:["4","5","7","8"], c:0, line:"x=4。方程式だ。"},
-    {q:"数学：(-2)³ = ?", a:["-8","8","-6","6"], c:0, line:"-8。3乗。"},
-    {q:"数学：√64 = ?", a:["6","7","8","32"], c:2, line:"8。平方根。"},
-    {q:"数学：5² − 3² = ?", a:["16","4","8","34"], c:0, line:"25-9=16。"},
-    // 国語
-    {q:"国語：「承る」の読みは？", a:["うけたまわる","うけおる","うかがう","たまわる"], c:0, line:"うけたまわる。難読だ。"},
-    {q:"国語：「原因」の対義語は？", a:["理由","結果","要因","原則"], c:1, line:"結果。対義語。"},
-    {q:"国語：「故郷」の読みは？", a:["こきょう","ふるさと","こさと","こごう"], c:0, line:"こきょう。"},
+    {q:"数学：(-2)³ = ?", a:["-8","8","-6","6"], c:0, line:"-8。3乗だ。"},
+    {q:"数学：連立 x+y=7, x−y=1 の x は？", a:["3","4","5","6"], c:1, line:"x=4,y=3。連立方程式。"},
+    {q:"数学：y=2x+1 で x=3 のとき y は？", a:["5","6","7","9"], c:2, line:"2×3+1=7。一次関数。"},
+    // 国語（中1〜中2）
+    {q:"国語：「原因」の対義語は？", a:["理由","結果","要因","原則"], c:1, line:"結果。対義語だ。"},
+    {q:"国語：「我田引水」の意味は？", a:["自分に都合よくする","とても急ぐ","正直なこと","美しい景色"], c:0, line:"我田引水…自分本位という意味。"},
+    {q:"国語：「推敲」の読みは？", a:["すいこう","ついこう","すいぎょう","すうこう"], c:0, line:"すいこう。文章を練ることだ。"},
+    {q:"国語：「蛍雪の功」が表すのは？", a:["苦労して学ぶ","運がよい","失敗する","遊びほうける"], c:0, line:"苦労して学問に励むこと。"},
   ];
   const FINAL_N = 6;          // 1回の問題数
   let finalQ=[], finalQi=0, finalGuard=0, finalTimers=[];
@@ -2110,7 +2130,6 @@
   }
   // 脱出アニメ終了 → 記録を保存 → すぐクレジット
   function endingToCredits(){
-    stopBGM();    // 勇者BGMはここで止める
     const miss = resultsLog.filter(r=>!r.ok).length;
     addRecord({ name: playerName||'ゲスト', ms: totalMs, miss: miss, t: Date.now() });
     showCredits();
@@ -2802,6 +2821,7 @@
     roll.parentNode.replaceChild(fresh, roll);   // animationを最初から
     const chars = fresh.querySelector('#crChars');
     if(chars) chars.innerHTML = buildStudent(false) + buildStudent(true);  // 2人登場
+    startBGM('parade');   // パレードっぽいBGM
     // クレジットが流れ終わったら結果へ
     fresh.addEventListener('animationend', ()=>{
       if(!document.getElementById('creditsScreen').classList.contains('hidden')) showResults('クリア！ けっか');
