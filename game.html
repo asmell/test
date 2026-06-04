@@ -746,6 +746,49 @@
   .fPlayer .charimg,.fPlayer img{ width:100%; display:block; }
   .fGuard{ position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:6; background:#fff; border-radius:999px; padding:6px 16px; font-weight:900; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.2); }
   .fGuard b{ color:var(--red); }
+  .fLives{ position:absolute; top:12px; right:12px; z-index:6; background:#fff; border-radius:999px; padding:6px 12px; font-weight:900; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.2); letter-spacing:1px; }
+  .fLives .lost{ filter:grayscale(1) opacity(.35); }
+  /* 校長が生徒に襲いかかる */
+  .fPrin.lunge{ animation:fLunge 1.5s cubic-bezier(.4,0,.85,1) forwards; z-index:5; }
+  @keyframes fLunge{ 0%{ transform:translateX(-46%) scale(1); } 25%{ transform:translateX(-46%) scale(1.05) rotate(2deg); } 100%{ transform:translate(-180px,18px) scale(2.1) rotate(-8deg); } }
+  .fPlayer.grabbed{ animation:fGrab 1.5s ease forwards; }
+  @keyframes fGrab{ 0%,38%{transform:translateX(0) rotate(0);} 50%{transform:translateX(-7px) rotate(-9deg);} 64%{transform:translateX(7px) rotate(9deg);} 78%{transform:translateX(-7px) rotate(-9deg);} 100%{transform:translate(-6px,8px) rotate(-12deg) scale(.72); opacity:.25;} }
+  #finalGameover{ position:absolute; inset:0; z-index:12; background:rgba(8,0,4,.93); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; opacity:0; pointer-events:none; transition:opacity .7s ease; }
+  #finalGameover.on{ opacity:1; pointer-events:auto; }
+  #finalGameover .goTitle{ color:#ff5a6e; font-size:42px; font-weight:900; text-shadow:0 0 20px rgba(255,40,70,.85); letter-spacing:3px; }
+  #finalGameover .goSub{ color:#fff; font-size:15px; font-weight:700; }
+  #finalGameover button{ border:none; cursor:pointer; border-radius:14px; padding:14px 28px; font-size:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,#ff7a8c,#e23b3b); box-shadow:0 5px 0 #a31f2f; margin-top:8px; }
+  #finalGameover button:active{ transform:translateY(3px); box-shadow:0 2px 0 #a31f2f; }
+  /* ===== ノーミス特別エンディング ===== */
+  #perfectScreen{ overflow:hidden; }
+  #peSky{ position:absolute; inset:0; z-index:0; background:radial-gradient(circle at 50% 38%,#fff6cf,#ffd86b 38%,#ff9b3d 72%,#e0631f); animation:peGlow 4s ease-in-out infinite; }
+  @keyframes peGlow{ 0%,100%{ filter:brightness(1);} 50%{ filter:brightness(1.12);} }
+  #peRays{ position:absolute; left:50%; top:36%; width:1200px; height:1200px; transform:translate(-50%,-50%); z-index:1; opacity:.45;
+    background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.0) 0deg 8deg, rgba(255,255,255,.55) 8deg 16deg);
+    animation:peSpin 16s linear infinite; pointer-events:none; }
+  @keyframes peSpin{ to{ transform:translate(-50%,-50%) rotate(360deg);} }
+  #peConfetti{ position:absolute; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
+  .pe-conf{ position:absolute; top:-20px; width:10px; height:14px; border-radius:2px; opacity:.95; animation:peFall linear forwards; }
+  @keyframes peFall{ 0%{ transform:translateY(-20px) rotate(0);} 100%{ transform:translateY(860px) rotate(720deg);} }
+  #pePanel{ position:absolute; inset:0; z-index:3; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center;
+    animation:pePop .7s cubic-bezier(.2,1.5,.4,1) both; }
+  @keyframes pePop{ 0%{ transform:scale(.6); opacity:0;} 100%{ transform:scale(1); opacity:1;} }
+  .pe-crown{ font-size:54px; animation:peBounce 1.4s ease-in-out infinite; }
+  @keyframes peBounce{ 0%,100%{ transform:translateY(0) rotate(-4deg);} 50%{ transform:translateY(-12px) rotate(4deg);} }
+  .pe-badge{ font-size:30px; font-weight:900; letter-spacing:2px; color:#7a3b00;
+    background:linear-gradient(100deg,#fff2b0 0%,#ffe070 25%,#fff7d6 45%,#ffcf3a 60%,#fff2b0 100%); background-size:220% 100%;
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    text-shadow:0 2px 0 rgba(255,255,255,.5); animation:peShine 2.2s linear infinite; filter:drop-shadow(0 2px 1px rgba(160,90,0,.4)); }
+  @keyframes peShine{ to{ background-position:-220% 0; } }
+  .pe-title{ font-size:30px; font-weight:900; color:#b3370a; text-shadow:0 3px 0 #fff,0 5px 8px rgba(150,50,0,.35); }
+  .pe-sub{ font-size:14px; font-weight:800; color:#6a3000; line-height:1.7; background:rgba(255,255,255,.6); padding:8px 16px; border-radius:14px; }
+  .pe-chars{ display:flex; gap:18px; justify-content:center; align-items:flex-end; height:120px; margin-top:4px; }
+  .pe-chars .charimg,.pe-chars img{ width:84px; display:block; filter:drop-shadow(0 6px 5px rgba(120,60,0,.4)); animation:peJoy .9s ease-in-out infinite; }
+  .pe-chars >*:nth-child(2) .charimg,.pe-chars >*:nth-child(2) img{ animation-delay:.45s; }
+  @keyframes peJoy{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-14px);} }
+  .pe-trophy{ font-size:48px; animation:peBounce 1.2s ease-in-out infinite .2s; }
+  .pe-rank{ font-size:24px; letter-spacing:3px; filter:drop-shadow(0 0 8px rgba(255,180,0,.9)); animation:peTwinkle 1s ease-in-out infinite; }
+  @keyframes peTwinkle{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.7; transform:scale(1.08);} }
   .fTitle{ position:absolute; top:50px; left:50%; transform:translateX(-50%); z-index:6; background:#7c5fd6; color:#fff; font-weight:900; font-size:14px; padding:5px 14px; border-radius:999px; box-shadow:0 3px 0 #5a3fb0; white-space:nowrap; }
   .fDialog{ position:absolute; left:12px; right:12px; bottom:150px; z-index:7; background:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 6px 0 rgba(0,0,0,.25); font-weight:900; font-size:16px; color:var(--ink); min-height:54px; line-height:1.5; }
   .fDialog .who{ color:#9c5b2a; font-size:13px; }
@@ -794,7 +837,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.22.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.23.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -991,11 +1034,17 @@
     <div class="fPrin appear" id="fPrin"><img src=""></div>
     <div id="finalRedFlash"></div>
     <div class="fGuard">🛡 校長のガード <b id="guardN">5</b></div>
+    <div class="fLives" id="fLives">❤️❤️</div>
     <div class="fTitle">★ ファイナルステージ：校長との最終問題！</div>
     <div class="fDialog" id="fDialog"></div>
     <div class="fQ" id="fQ"></div>
     <div id="finalFlash"></div>
     <div id="finalStamp">脱出成功！</div>
+    <div id="finalGameover">
+      <div class="goTitle">ゲームオーバー</div>
+      <div class="goSub">校長につかまってしまった…</div>
+      <button id="goRetryBtn">もう一度ちょうせん</button>
+    </div>
   </div>
 
   <div id="lockInScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 30%,#9fc4d6,#4a7d92);">
@@ -1098,6 +1147,22 @@
     </div>
     <div id="creditBtns">
       <button class="btn blue" id="crSkipBtn">▶ けっかへ すすむ</button>
+    </div>
+  </div>
+
+  <!-- ===== ノーミス達成！特別エンディング ===== -->
+  <div id="perfectScreen" class="screen hidden">
+    <div id="peSky"></div>
+    <div id="peRays"></div>
+    <div id="peConfetti"></div>
+    <div id="pePanel">
+      <div class="pe-crown">👑</div>
+      <div class="pe-badge">PERFECT&nbsp;CLEAR</div>
+      <div class="pe-title">ノーミス クリア！</div>
+      <div class="pe-sub">ひとつも まちがえずに 校長を倒した！<br>キミは まさに 最強の脱出マスター✨</div>
+      <div class="pe-chars" id="peChars"></div>
+      <div class="pe-trophy">🏆</div>
+      <div class="pe-rank">⭐⭐⭐⭐⭐</div>
     </div>
   </div>
 
@@ -1741,6 +1806,10 @@
     hero:{m:[72,72,72,76, 79,79,79,84, 83,79,76,79, 81,84,84,84], b:[48,55,53,55], beat:0.15, wave:'square'},
     // クレジット＝パレードっぽい（明るい行進曲・はずむマーチ）
     parade:{m:[72,76,79,84, 83,79,76,79, 81,84,81,79, 77,79,76,72], b:[48,55,48,55], beat:0.16, wave:'square'},
+    // オープニング前半＝陽気（明るくのんき）
+    happy:{m:[72,74,76,79, 77,76,74,72, 71,74,77,76, 74,72,71,67], b:[48,52,53,55], beat:0.17, wave:'triangle'},
+    // 閉じ込め後＝焦る（速い短調・不安）
+    tense:{m:[69,72,69,72, 70,73,70,73, 68,71,68,71, 69,72,74,75], b:[45,45,44,44], beat:0.115, wave:'sawtooth'},
   };
   let currentBgmKey = 1;
   function setBgmTheme(st){
@@ -1881,7 +1950,7 @@
   function showHintBtn(){ updateHintBtn(); hintBtn.classList.remove('hidden'); }
   function hideHint(){ hintBtn.classList.add('hidden'); hintToast.classList.add('hidden'); }
   function resetMiss(){ missCount = 0; hintUses = 0; combo = 0; }
-  function addMiss(){ missCount++; combo = 0; if(missCount>=HINT_MISSES) showHintBtn(); }
+  function addMiss(){ missCount++; combo = 0; perfectRun = false; if(missCount>=HINT_MISSES) showHintBtn(); }
 
   // ===== コンボ（連続正解） =====
   let combo = 0;
@@ -2001,46 +2070,68 @@
 
   // ===== ファイナルステージ：校長との最終問題（難しめ・毎回ランダム） =====
   const FINAL_POOL = [
-    // 理科（中1〜中2）
-    {q:"理科：化合物はどれ？", a:["水素","酸素","二酸化炭素","鉄"], c:2, line:"二酸化炭素は2種類の原子…化合物だ。"},
+    // 理科（中1〜中2・難しめ）
     {q:"理科：化学変化で全体の質量は？", a:["ふえる","へる","変わらない","半分"], c:2, line:"質量保存の法則。変わらん。"},
     {q:"理科：水の電気分解 陰極に出る気体は？", a:["酸素","水素","窒素","塩素"], c:1, line:"陰極は水素。体積比は2:1だ。"},
-    {q:"理科：6V・抵抗2Ωに流れる電流は？", a:["2A","3A","8A","12A"], c:1, line:"6÷2=3A。オームの法則だ。"},
-    {q:"理科：種子をつくらず胞子でふえるのは？", a:["アサガオ","イネ","シダ","マツ"], c:2, line:"シダ植物。胞子でふえる。"},
-    // 英語（中1〜中2）
-    {q:"英語：go の過去形は？", a:["goed","went","gone","going"], c:1, line:"went。不規則動詞だ。"},
-    {q:"英語：「美しい」は？", a:["BEAUTIFUL","BEUTIFUL","BEAUTIFULL","BEUTYFUL"], c:0, line:"BEAUTIFUL。つづりに注意。"},
+    {q:"理科：12V・3Aのときの電力は？", a:["4W","15W","36W","9W"], c:2, line:"12×3=36W。電力だ。"},
+    {q:"理科：酸素を発生させる組み合わせは？", a:["石灰石＋塩酸","二酸化マンガン＋オキシドール","鉄＋硫黄","食塩＋水"], c:1, line:"二酸化マンガンとオキシドール。酸素だ。"},
+    {q:"理科：空気中の水滴ができ始める温度は？", a:["沸点","露点","融点","凝固点"], c:1, line:"露点。湿度の話だ。"},
+    {q:"理科：胎生でふえるなかまは？", a:["は虫類","両生類","鳥類","哺乳類"], c:3, line:"哺乳類が胎生だ。"},
+    {q:"理科：電流の単位 A(アンペア)が表すのは？", a:["電圧","電流","抵抗","電力"], c:1, line:"Aは電流の単位だ。"},
+    // 英語（中1〜中2・難しめ）
+    {q:"英語：buy の過去形は？", a:["buyed","bought","buied","buyt"], c:1, line:"bought。不規則動詞だ。"},
+    {q:"英語：busy の最上級は？", a:["busier","busyest","busiest","most busy"], c:2, line:"busiest。yをiに。"},
+    {q:"英語：I want ___ English. に入るのは？", a:["study","to study","studying","studied"], c:1, line:"want to ～。不定詞だ。"},
+    {q:"英語：「2月」は？", a:["JANUARY","FEBRUARY","FEBUARY","FEBRARY"], c:1, line:"FEBRUARY…難スペルだ。"},
+    {q:"英語：He ___ like natto. (否定)", a:["don't","doesn't","isn't","not"], c:1, line:"三単現の否定は doesn't。"},
     {q:"英語：good の比較級は？", a:["gooder","more good","better","best"], c:2, line:"better。不規則変化だ。"},
-    {q:"英語：「水曜日」は？", a:["TUESDAY","THURSDAY","WEDNESDAY","SUNDAY"], c:2, line:"WEDNESDAY…難しいぞ。"},
-    {q:"英語：I have ___ apple. に入るのは？", a:["a","an","the","×"], c:1, line:"母音の前は an だ。"},
-    // 社会（中1〜中2 地理・歴史）
-    {q:"社会：日本一長い川は？", a:["利根川","信濃川","石狩川","北上川"], c:1, line:"信濃川だ。"},
-    {q:"社会：鎌倉幕府を開いたのは？", a:["足利尊氏","源頼朝","徳川家康","織田信長"], c:1, line:"源頼朝。歴史もできるか。"},
+    {q:"英語：「水曜日」は？", a:["TUESDAY","THURSDAY","WEDNESDAY","SUNDAY"], c:2, line:"WEDNESDAY…つづりに注意。"},
+    // 社会（中1〜中2 地理・歴史・難しめ）
+    {q:"社会：本初子午線が通る国は？", a:["フランス","イギリス","ドイツ","スペイン"], c:1, line:"イギリス。経度0度だ。"},
+    {q:"社会：1853年 浦賀に来航したのは？", a:["ザビエル","ペリー","ハリス","コロンブス"], c:1, line:"ペリーだ。開国がせまる。"},
+    {q:"社会：江戸時代 出島で貿易した国は？", a:["イギリス","スペイン","オランダ","ポルトガル"], c:2, line:"オランダ。鎖国でもな。"},
+    {q:"社会：聖徳太子が定めたのは？", a:["大宝律令","十七条の憲法","御成敗式目","武家諸法度"], c:1, line:"十七条の憲法だ。"},
+    {q:"社会：世界最大の砂漠は？", a:["ゴビ砂漠","サハラ砂漠","タクラマカン","アタカマ"], c:1, line:"サハラ砂漠だ。"},
     {q:"社会：1600年 天下分け目の戦いは？", a:["桶狭間の戦い","関ヶ原の戦い","長篠の戦い","壇ノ浦の戦い"], c:1, line:"関ヶ原の戦いだ。"},
-    {q:"社会：面積が最も大きい都道府県は？", a:["岩手県","長野県","北海道","新潟県"], c:2, line:"北海道。地理の基本。"},
     {q:"社会：参勤交代を定めた人物は？", a:["徳川家光","豊臣秀吉","織田信長","徳川家康"], c:0, line:"徳川家光だ。"},
-    // 数学（中1〜中2）
-    {q:"数学：-6 −(-9) = ?", a:["-15","-3","3","15"], c:2, line:"3。負の数の引き算。"},
-    {q:"数学：2(x+3)=14 の x は？", a:["4","5","7","8"], c:0, line:"x=4。方程式だ。"},
+    // 数学（中1〜中2・難しめ）
+    {q:"数学：-3(2x−4) を展開すると？", a:["-6x-12","-6x+12","6x-12","-6x-4"], c:1, line:"-6x+12。分配法則だ。"},
+    {q:"数学：反比例 y=12/x で x=3 のとき y は？", a:["3","4","6","36"], c:1, line:"12÷3=4。反比例。"},
+    {q:"数学：2点(0,1),(2,5)を通る直線の傾きは？", a:["1","2","3","4"], c:1, line:"(5-1)/(2-0)=2。傾きだ。"},
+    {q:"数学：3x−2 = x+6 の x は？", a:["2","3","4","5"], c:2, line:"2x=8、x=4。方程式。"},
     {q:"数学：(-2)³ = ?", a:["-8","8","-6","6"], c:0, line:"-8。3乗だ。"},
     {q:"数学：連立 x+y=7, x−y=1 の x は？", a:["3","4","5","6"], c:1, line:"x=4,y=3。連立方程式。"},
-    {q:"数学：y=2x+1 で x=3 のとき y は？", a:["5","6","7","9"], c:2, line:"2×3+1=7。一次関数。"},
-    // 国語（中1〜中2）
-    {q:"国語：「原因」の対義語は？", a:["理由","結果","要因","原則"], c:1, line:"結果。対義語だ。"},
-    {q:"国語：「我田引水」の意味は？", a:["自分に都合よくする","とても急ぐ","正直なこと","美しい景色"], c:0, line:"我田引水…自分本位という意味。"},
+    {q:"数学：さいころ1個 偶数が出る確率は？", a:["1/6","1/3","1/2","2/3"], c:2, line:"3/6=1/2。確率だ。"},
+    // 国語（中1〜中2・難しめ）
+    {q:"国語：「五十歩百歩」の意味は？", a:["大した差がない","とても速い","大きな違い","親切なこと"], c:0, line:"五十歩百歩…大差ないという意味。"},
+    {q:"国語：「呉越同舟」の意味は？", a:["仲の悪い者が同じ場所に","旅に出ること","協力すること","争いが続く"], c:0, line:"呉越同舟。敵どうしが居合わす。"},
+    {q:"国語：「杞憂」の意味は？", a:["大きな喜び","いらない心配","深い反省","正しい判断"], c:1, line:"杞憂…無用な心配のことだ。"},
+    {q:"国語：「需要」の対義語は？", a:["要求","消費","供給","生産"], c:2, line:"供給。対義語だ。"},
     {q:"国語：「推敲」の読みは？", a:["すいこう","ついこう","すいぎょう","すうこう"], c:0, line:"すいこう。文章を練ることだ。"},
-    {q:"国語：「蛍雪の功」が表すのは？", a:["苦労して学ぶ","運がよい","失敗する","遊びほうける"], c:0, line:"苦労して学問に励むこと。"},
+    {q:"国語：「我田引水」の意味は？", a:["自分に都合よくする","とても急ぐ","正直なこと","美しい景色"], c:0, line:"我田引水…自分本位という意味。"},
+    {q:"国語：「割愛」の意味は？", a:["むだを省く","惜しみつつ手放す","強く愛する","大切にしまう"], c:1, line:"割愛…惜しみながら手放すことだ。"},
   ];
-  const FINAL_N = 6;          // 1回の問題数
-  let finalQ=[], finalQi=0, finalGuard=0, finalTimers=[];
+  const FINAL_N = 10;          // 1回の問題数
+  const FINAL_LIVES = 3;       // 校長戦のライフ
+  let finalQ=[], finalQi=0, finalGuard=0, finalTimers=[], finalLives=FINAL_LIVES;
+  let perfectRun = true;       // 全問ノーミスかどうか
+  function updateFinalLives(){
+    const el=document.getElementById('fLives');
+    let s='';
+    for(let i=0;i<FINAL_LIVES;i++){ s += (i<finalLives) ? '❤️' : '<span class="lost">❤️</span>'; }
+    el.innerHTML = s;
+  }
   function startFinal(){
     state='final';
     finalQ = shuffle(FINAL_POOL).slice(0, FINAL_N);   // 毎回ランダム
     finalQi=0; finalGuard=finalQ.length;
+    finalLives=FINAL_LIVES; updateFinalLives();
     document.querySelector('#fPrin img').src = window.PRINCIPAL;
     document.getElementById('fPlayer').innerHTML = buildStudent(runIsBoy);
+    const fp=document.getElementById('fPlayer'); fp.classList.remove('grabbed');
+    document.getElementById('finalGameover').classList.remove('on');
     const prin=document.getElementById('fPrin');
-    prin.classList.remove('step'); prin.classList.add('appear');   // 最初は見えない
+    prin.classList.remove('step','lunge'); prin.classList.add('appear');   // 最初は見えない
     document.getElementById('fAura').classList.remove('on');
     document.getElementById('fExit').style.transform='translateX(-50%)';
     document.getElementById('fExitLight').style.opacity='0';
@@ -2090,10 +2181,37 @@
       setTimeout(()=>{ finalQi++; if(finalQi>=finalQ.length){ finalClear(); } else { renderFinalQ(); } }, 1100);
     } else {
       btn.classList.add('ng'); playSE(false);
+      perfectRun = false;
+      finalLives--; updateFinalLives();
       const s=document.getElementById('finalScreen'); s.classList.add('shake'); setTimeout(()=>s.classList.remove('shake'),350);
-      document.getElementById('fDialog').innerHTML='<span class="who">校長</span><br>あまい！ もう一度考えたまえ。';
+      document.getElementById('finalRedFlash').classList.remove('on'); void document.getElementById('finalRedFlash').offsetWidth; document.getElementById('finalRedFlash').classList.add('on');
+      if(finalLives<=0){
+        document.getElementById('fQ').querySelectorAll('button').forEach(b=>b.disabled=true);
+        document.getElementById('fDialog').innerHTML='<span class="who">校長</span><br>フハハ…！ もう逃がさんぞ！';
+        setTimeout(()=>{ finalGameOver(); }, 900);
+      } else {
+        document.getElementById('fDialog').innerHTML='<span class="who">校長</span><br>あまい！ ライフが1つ減ったぞ…！（のこり'+finalLives+'）';
+      }
     }
   }
+  // ゲームオーバー：校長が生徒に襲いかかる
+  function finalGameOver(){
+    state='gameover';
+    finalTimers.forEach(t=>clearTimeout(t)); finalTimers=[];
+    const prin=document.getElementById('fPrin');
+    const player=document.getElementById('fPlayer');
+    document.getElementById('fAura').classList.add('on');
+    startBGM('maou');
+    // ① 校長が襲いかかる
+    prin.classList.remove('step','appear'); void prin.offsetWidth; prin.classList.add('lunge');
+    setTimeout(()=>{ player.classList.add('grabbed'); }, 500);
+    // 赤フラッシュ連打
+    [600,1000,1400].forEach(ms=>setTimeout(()=>{ const rf=document.getElementById('finalRedFlash'); rf.classList.remove('on'); void rf.offsetWidth; rf.classList.add('on'); playSE(false); }, ms));
+    // ② ゲームオーバー表示
+    setTimeout(()=>{ document.getElementById('finalGameover').classList.add('on'); stopBGM(); playGameOverJingle(); }, 1700);
+  }
+  function playGameOverJingle(){ if(muted) return; ensureAudio(); const t=actx.currentTime; tone(330,t,0.18,'sawtooth',0.16); tone(294,t+0.18,0.18,'sawtooth',0.16); tone(247,t+0.36,0.45,'sawtooth',0.16); }
+  document.getElementById('goRetryBtn').onclick = ()=>{ startFinal(); };   // もう一度校長戦に挑戦
   function playCorrect2(){ if(muted) return; ensureAudio(); const t=actx.currentTime; tone(523,t,0.1,'square',0.16); tone(784,t+0.09,0.16,'square',0.16); }
   function finalClear(){
     document.getElementById('fAura').classList.remove('on');
@@ -2128,11 +2246,39 @@
     setTimeout(()=>{ stamp.classList.add('show'); playWin(); cap.textContent='🎉 脱出成功！'; }, 4600); // ⑥ 脱出成功スタンプ＋ファンファーレ
     setTimeout(()=>{ endingToCredits(); }, 6100);                            // ⑦ すぐクレジットへ
   }
-  // 脱出アニメ終了 → 記録を保存 → すぐクレジット
+  // 脱出アニメ終了 → 記録を保存 → （ノーミスなら特別エンディング→）クレジット
   function endingToCredits(){
     const miss = resultsLog.filter(r=>!r.ok).length;
     addRecord({ name: playerName||'ゲスト', ms: totalMs, miss: miss, t: Date.now() });
-    showCredits();
+    if(perfectRun){ showPerfectEnding(); } else { showCredits(); }
+  }
+  // ★ ノーミス達成の特別エンディング
+  function showPerfectEnding(){
+    document.getElementById('peChars').innerHTML = buildStudent(false) + buildStudent(true);
+    // 紙ふぶき生成
+    const cf=document.getElementById('peConfetti'); cf.innerHTML='';
+    const cols=['#ff5d8f','#ffd23e','#4fc3ff','#7CFC8A','#c08bff','#ff8b3d','#fff'];
+    for(let i=0;i<70;i++){
+      const p=document.createElement('div'); p.className='pe-conf';
+      p.style.left=(Math.random()*100)+'%';
+      p.style.background=cols[i%cols.length];
+      p.style.animationDuration=(2.4+Math.random()*2.6)+'s';
+      p.style.animationDelay=(Math.random()*2.2)+'s';
+      p.style.transform='scale('+(0.7+Math.random()*0.8)+')';
+      cf.appendChild(p);
+    }
+    show('perfectScreen');
+    startBGM('parade');           // 明るいパレードBGM
+    playPerfectFanfare();
+    // 数秒みせたあとクレジットへ
+    if(autoCreditTimer) clearTimeout(autoCreditTimer);
+    autoCreditTimer = setTimeout(()=>{ showCredits(); }, 7000);
+    document.getElementById('perfectScreen').onclick = ()=>{ if(autoCreditTimer) clearTimeout(autoCreditTimer); showCredits(); };
+  }
+  function playPerfectFanfare(){
+    if(muted) return; ensureAudio(); const t=actx.currentTime;
+    [523,659,784,1047].forEach((f,i)=>tone(f,t+i*0.12,0.18,'square',0.16));
+    tone(1047,t+0.5,0.5,'square',0.16); tone(1319,t+0.5,0.5,'triangle',0.12);
   }
   // ===== きろく（過去の記録）：端末に保存 =====
   const REC_KEY = 'escapeRecords_v1';
@@ -2212,7 +2358,7 @@
 
   // 1プレイの最初に記録などをリセット
   function startRun(){
-    keys=0; stage=1; resultsLog=[]; totalMs=0;
+    keys=0; stage=1; resultsLog=[]; totalMs=0; perfectRun=true;
     const nm = (document.getElementById('nameInput').value||'').trim();
     if(nm) playerName = nm;       // 入力があれば名前を更新
     runIsBoy = (chosenIsBoy!==null) ? chosenIsBoy : (Math.random()<0.5);
@@ -2236,6 +2382,7 @@
     document.getElementById('liWalkerInner').innerHTML = buildStudent(runIsBoy);
     cap.textContent = '🏫 ほうかご、教室にもどると…';
     show('lockInScreen');
+    startBGM('happy');           // 陽気なBGM（鍵を掛けられる前）
     void sc.offsetWidth;
     lockInTimers.forEach(clearTimeout); lockInTimers = [];
     const T = (ms,fn)=> lockInTimers.push(setTimeout(fn, ms));
@@ -2245,13 +2392,14 @@
     T(400,  ()=>{ walker.classList.add('in'); });               // 歩いて入ってくる
     T(2200, ()=>{ walker.classList.remove('in'); cap.textContent='🤔 あれ？ だれもいない…'; }); // 中央で止まる
     T(3400, ()=>{ sc.classList.remove('open'); sc.classList.add('slam'); playSE(false);
+                  startBGM('tense');          // 陽気なBGMを止めて 焦るBGMへ
                   walker.classList.add('jump'); emo('❗'); cap.textContent='🚪 バタン！ ドアがしまった！'; }); // 閉まる
     T(4200, ()=>{ walker.classList.remove('jump'); });
     T(4700, ()=>{ sc.classList.add('rattle'); playSE(false); emo('💦'); cap.textContent='ガチャガチャ…！ あかない！'; }); // ドアをゆらす
     T(5900, ()=>{ sc.classList.remove('rattle'); sc.classList.add('locked'); playSE(false); cap.textContent='🔒 カギがかかってる…！'; }); // ロック
     T(6900, ()=>{ sc.classList.add('trapped'); emo('😱'); cap.textContent='😱 教室にとじこめられた…！'; }); // 赤フラッシュ
     T(8200, ()=>{ bubble.textContent='ミニゲームをクリアして 脱出しよう！'; bubble.className=''; void bubble.offsetWidth; bubble.className='show'; cap.textContent='💡 どうする…！？'; });
-    T(10400,()=>{ show('introScreen'); });                      // 説明へ
+    T(10400,()=>{ stopBGM(); show('introScreen'); });           // 焦るBGMを止めて 説明へ
   }
   // ぜんぶ最初から
   function restartAll(){ startRun(); }
