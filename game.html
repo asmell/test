@@ -132,6 +132,7 @@
     animation:hintpulse 1s ease-in-out infinite;
   }
   #hintBtn:active{ transform:translateX(-50%) translateY(3px); box-shadow:0 2px 0 #d9a800; }
+  #hintBtn.used-up{ background:#d9d4c0; color:#7c776a; box-shadow:0 5px 0 #b3ae9a; animation:none; }
   @keyframes hintpulse{ 0%,100%{ box-shadow:0 5px 0 #d9a800; } 50%{ box-shadow:0 5px 0 #d9a800,0 0 16px 4px rgba(255,217,61,.8); } }
   #hintToast{
     position:absolute; left:50%; bottom:160px; transform:translateX(-50%); z-index:41;
@@ -626,7 +627,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.11.1</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.11.2</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -1675,15 +1676,22 @@
     });
   }
 
-  // ===== ヒント（5回ミスで出る） =====
+  // ===== ヒント（5回ミスで出る・最大5回まで使える） =====
   const hintBtn = document.getElementById('hintBtn');
   const hintToast = document.getElementById('hintToast');
   let toastTimer = null;
   let missCount = 0;
+  let hintUses = 0;
   const HINT_MISSES = 5;
-  function showHintBtn(){ hintBtn.classList.remove('hidden'); }
+  const HINT_MAX = 5;
+  function updateHintBtn(){
+    const left = HINT_MAX - hintUses;
+    hintBtn.textContent = left>0 ? ('💡 ヒント（あと'+left+'）') : '💡 ヒントなし';
+    hintBtn.classList.toggle('used-up', left<=0);
+  }
+  function showHintBtn(){ updateHintBtn(); hintBtn.classList.remove('hidden'); }
   function hideHint(){ hintBtn.classList.add('hidden'); hintToast.classList.add('hidden'); }
-  function resetMiss(){ missCount = 0; }
+  function resetMiss(){ missCount = 0; hintUses = 0; }
   function addMiss(){ missCount++; if(missCount>=HINT_MISSES) showHintBtn(); }
   function toast(msg){
     hintToast.textContent = msg;
@@ -1692,6 +1700,8 @@
     toastTimer = setTimeout(()=>hintToast.classList.add('hidden'), 3000);
   }
   function giveHint(){
+    if(hintUses >= HINT_MAX){ toast('ヒントはもう使えないよ（最大5回）'); return; }
+    hintUses++;
     if(state==='playing'){               // ① 単語拾い
       let any=false;
       words.forEach(w=>{ if(!w.dead && w.type==='element'){ w.el.classList.add('hintglow'); any=true; setTimeout(()=>w.el.classList.remove('hintglow'),2200); } });
@@ -1730,6 +1740,7 @@
       }
       toast('光ってる2つが組み合わせ！');
     }
+    updateHintBtn();   // 残り回数を更新
   }
   hintBtn.addEventListener('click', giveHint);
 
