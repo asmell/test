@@ -629,20 +629,41 @@
   @keyframes liflash{ 0%{opacity:0;} 40%{opacity:.5;} 100%{opacity:0;} }
 
   /* ===== クレジット ===== */
-  #creditsScreen{ overflow:hidden; padding:0; justify-content:flex-start; }
+  #creditsScreen{
+    overflow:hidden; padding:0; justify-content:flex-start;
+    background:
+      radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.9), transparent),
+      radial-gradient(2px 2px at 70% 18%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1.5px 1.5px at 40% 60%, rgba(255,255,255,.7), transparent),
+      radial-gradient(2px 2px at 85% 70%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1.5px 1.5px at 12% 80%, rgba(255,255,255,.7), transparent),
+      radial-gradient(circle at 50% 30%, #2c3358, #0e1020 75%);
+  }
   #creditRoll{
     position:absolute; left:0; right:0; top:100%; text-align:center; color:#fff;
-    display:flex; flex-direction:column; gap:14px; padding:20px;
-    animation:creditroll 22s linear forwards;
+    display:flex; flex-direction:column; align-items:center; gap:12px; padding:24px 18px;
+    animation:creditroll 36s linear forwards;
   }
-  @keyframes creditroll{ from{ transform:translateY(0); } to{ transform:translateY(-130%); } }
-  #creditRoll .cr-big{ font-size:30px; font-weight:900; color:#ffd93d; text-shadow:0 3px 0 #b07a00; }
-  #creditRoll .cr-sub{ font-size:18px; font-weight:900; color:#fff; }
-  #creditRoll .cr-head{ font-size:16px; font-weight:900; color:#8fd2ff; margin-top:6px; }
-  #creditRoll .cr-item{ font-size:15px; font-weight:700; color:#e7e7ef; }
-  #creditRoll .cr-name{ font-size:23px; font-weight:900; color:#fff; letter-spacing:1px; }
-  #creditRoll .cr-line{ height:6px; }
-  #creditBtns{ position:absolute; bottom:18px; left:0; right:0; z-index:3; display:flex; gap:10px; justify-content:center; }
+  @keyframes creditroll{ from{ transform:translateY(0); } to{ transform:translateY(calc(-100% - 42vh)); } }
+  #creditRoll .cr-emoji{ font-size:30px; letter-spacing:6px; }
+  #creditRoll .cr-big{
+    font-size:34px; font-weight:900; color:#ffe06b;
+    text-shadow:0 0 14px rgba(255,217,61,.7),0 3px 0 #a9760a; letter-spacing:2px;
+  }
+  #creditRoll .cr-sub{ font-size:16px; font-weight:900; color:#cfe0ff; }
+  #creditRoll .cr-thanks{ font-size:18px; font-weight:900; color:#fff; line-height:1.6; }
+  #creditRoll .cr-head{ font-size:16px; font-weight:900; color:#7fd6ff; letter-spacing:2px; }
+  #creditRoll .cr-role{ font-size:13px; font-weight:700; color:#b9c2dd; }
+  #creditRoll .cr-item{ font-size:15px; font-weight:700; color:#e7e7ef; line-height:1.5; }
+  #creditRoll .cr-item i{ color:#9aa6c8; font-style:normal; font-size:13px; }
+  #creditRoll .cr-name{
+    font-size:26px; font-weight:900; color:#fff; letter-spacing:1px;
+    text-shadow:0 0 10px rgba(143,210,255,.6); margin:2px 0;
+  }
+  #creditRoll .cr-gap{ height:30px; }
+  #creditRoll .cr-chars{ display:flex; gap:10px; justify-content:center; align-items:flex-end; height:120px; margin-bottom:6px; }
+  #creditRoll .cr-chars .charimg, #creditRoll .cr-chars svg{ height:120px; width:auto; }
+  #creditBtns{ position:absolute; bottom:16px; left:0; right:0; z-index:3; display:flex; gap:10px; justify-content:center; }
 
   #thankyou{
     position:absolute; inset:0; z-index:5; display:flex; flex-direction:column;
@@ -694,7 +715,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.17.0</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.18.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -931,27 +952,44 @@
   </div>
 
   <!-- ===== クレジット（スタッフロール） ===== -->
-  <div id="creditsScreen" class="screen hidden" style="background:radial-gradient(circle at 50% 35%,#2b2f45,#11131f);">
+  <div id="creditsScreen" class="screen hidden">
     <div id="creditRoll">
+      <div class="cr-emoji">🔑🚪🎉</div>
       <div class="cr-big">脱出ゲーム</div>
-      <div class="cr-sub">Thank you for playing!</div>
-      <div class="cr-line">　</div>
-      <div class="cr-head">― ミニゲーム ―</div>
-      <div class="cr-item">🧪 単語拾い（理科）</div>
-      <div class="cr-item">🔤 英語スペル</div>
-      <div class="cr-item">🗾 都道府県パズル（社会）</div>
-      <div class="cr-item">🔢 金庫の暗号（数学）</div>
-      <div class="cr-item">🈁 部首とつくり（国語）</div>
-      <div class="cr-line">　</div>
-      <div class="cr-head">― せいさく ―</div>
-      <div class="cr-name">Ueno Ren</div>
-      <div class="cr-name">Kinosita Rika</div>
-      <div class="cr-name">Tanabe Yui</div>
-      <div class="cr-line">　</div>
-      <div class="cr-head">― スペシャルサンクス ―</div>
+      <div class="cr-sub">〜 5教科で 教室から脱出！ 〜</div>
+      <div class="cr-thanks">Thank you for playing!<br>あそんでくれて ありがとう✨</div>
+
+      <div class="cr-gap"></div>
+      <div class="cr-head">▣　ミニゲーム　▣</div>
+      <div class="cr-item">🧪 単語拾い　<i>理科：単体と化合物</i></div>
+      <div class="cr-item">🔤 英語スペルならべ　<i>中1-2の英単語</i></div>
+      <div class="cr-item">🗾 都道府県パズル　<i>社会：47都道府県</i></div>
+      <div class="cr-item">🔢 金庫の暗号　<i>数学：正負の数・式</i></div>
+      <div class="cr-item">🈁 部首とつくり　<i>国語：漢字の組み立て</i></div>
+
+      <div class="cr-gap"></div>
+      <div class="cr-head">▣　せいさく　／　STAFF　▣</div>
+      <div class="cr-role">企画・デザイン・プログラム</div>
+      <div class="cr-name">Ueno　Ren</div>
+      <div class="cr-name">Kinosita　Rika</div>
+      <div class="cr-name">Tanabe　Yui</div>
+
+      <div class="cr-gap"></div>
+      <div class="cr-head">▣　おんがく・こうかおん　▣</div>
+      <div class="cr-item">すべてオリジナル（Web Audioで生成）</div>
+      <div class="cr-head" style="margin-top:14px;">▣　ちずデータ　▣</div>
+      <div class="cr-item">日本地図：Geolonia（MITライセンス）</div>
+
+      <div class="cr-gap"></div>
+      <div class="cr-head">▣　スペシャルサンクス　▣</div>
       <div class="cr-item">あそんでくれた きみ！</div>
-      <div class="cr-line">　</div>
-      <div class="cr-big">🎉 おしまい 🎉</div>
+      <div class="cr-item">先生・クラスのみんな</div>
+
+      <div class="cr-gap"></div>
+      <div class="cr-chars" id="crChars"></div>
+      <div class="cr-big">🎉　おしまい　🎉</div>
+      <div class="cr-thanks">またあそんでね！</div>
+      <div class="cr-gap"></div>
     </div>
     <div id="creditBtns">
       <button class="btn blue" id="crReplayBtn">🔁 もう一度</button>
@@ -2530,6 +2568,8 @@
     const roll = document.getElementById('creditRoll');
     const fresh = roll.cloneNode(true);
     roll.parentNode.replaceChild(fresh, roll);   // animationを最初から
+    const chars = fresh.querySelector('#crChars');
+    if(chars) chars.innerHTML = buildStudent(false) + buildStudent(true);  // 2人登場
     show('creditsScreen');
   }
   document.getElementById('escCreditBtn').onclick = showCredits;
