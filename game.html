@@ -302,9 +302,18 @@
   /* ③ 都道府県パズル（本物の日本地図） */
   #mapTarget{ color:#1f1a29; font-weight:900; font-size:21px; background:rgba(255,255,255,.95); border-radius:999px; padding:6px 18px; box-shadow:0 3px 0 rgba(0,0,0,.12); }
   #mapTarget #mapName{ color:#ff2b2b; font-size:27px; }
-  #mapBox{ width:100%; max-width:560px; background:#cfeffd; border-radius:12px; box-shadow:0 5px 0 rgba(0,0,0,.12); padding:2px; }
+  #mapWrap{ position:relative; width:100%; }
+  #mapBox{ width:100%; max-width:560px; margin:0 auto; background:#cfeffd; border-radius:12px; box-shadow:0 5px 0 rgba(0,0,0,.12); padding:0; overflow:hidden; touch-action:none; }
   #mapScreen{ padding-left:0; padding-right:0; gap:6px; }
-  #mapBox svg{ display:block; width:100%; height:auto; }
+  #mapBox svg{ display:block; width:100%; height:auto; transform-origin:0 0; will-change:transform; }
+  #mapZoomCtl{ position:absolute; right:8px; top:8px; display:flex; flex-direction:column; gap:6px; z-index:6; }
+  #mapZoomCtl button{
+    width:42px; height:42px; border:none; border-radius:11px; cursor:pointer;
+    background:#fff; color:#2a2233; font-size:24px; font-weight:900; box-shadow:0 3px 0 rgba(0,0,0,.22);
+  }
+  #mapZoomCtl button:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.22); }
+  #mapZoomHint{ position:absolute; left:8px; bottom:8px; z-index:6; font-size:11px; font-weight:900;
+    color:#2a2233; background:rgba(255,255,255,.85); border-radius:999px; padding:3px 10px; }
   #mapBox .prefecture{ fill:#c4cdd4; stroke:#6c7681; stroke-width:1.4; cursor:pointer; transition:fill .15s; }
   #mapBox .prefecture:hover{ fill:#a9b4bd; }
   #mapBox .prefecture.done{ fill:#5ccd6a; }
@@ -617,7 +626,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.4</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.10.0</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -763,7 +772,15 @@
     <div class="keybar">🔑 <span id="keys3">2</span>/5 ・ 見つけた数 <span id="mapDone">0</span>/8 ・ ⏱<span class="stime">1:00</span></div>
     <div class="ministage">③ 都道府県パズル</div>
     <div id="mapTarget">「<span id="mapName">北海道</span>」をタップ！</div>
-    <div id="mapBox"></div>
+    <div id="mapWrap">
+      <div id="mapBox"></div>
+      <div id="mapZoomCtl">
+        <button data-z="in">＋</button>
+        <button data-z="out">−</button>
+        <button data-z="reset">⟳</button>
+      </div>
+      <div id="mapZoomHint">ピンチ／＋−でズーム・ドラッグで移動</div>
+    </div>
   </div>
 
   <!-- ===== ミニゲーム④ 金庫の暗号をとく ===== -->
@@ -2069,8 +2086,71 @@
     mapQueue = shuffle(PREF_POOL).slice(0, MAP_TARGET);
     showMapTarget();
     show('mapScreen');
+    setupMapZoom();
     startBGM();
     startStageClock();
+  }
+
+  // 地図のズーム＆ドラッグ（ピンチ・＋−ボタン対応）
+  function setupMapZoom(){
+    const box = document.getElementById('mapBox');
+    const svg = box.querySelector('svg');
+    if(!svg) return;
+    let scale=1, tx=0, ty=0;
+    const MIN=1, MAX=5;
+    const apply = ()=>{ svg.style.transform = 'translate('+tx+'px,'+ty+'px) scale('+scale+')'; };
+    const clamp = ()=>{
+      const w=box.clientWidth, h=box.clientHeight;
+      tx = Math.max(Math.min(0,w-w*scale), Math.min(0, tx));
+      ty = Math.max(Math.min(0,h-h*scale), Math.min(0, ty));
+    };
+    const zoomAt = (cx,cy,factor)=>{
+      const ns=Math.max(MIN,Math.min(MAX, scale*factor));
+      const k=ns/scale;
+      tx = cx-(cx-tx)*k; ty = cy-(cy-ty)*k;
+      scale=ns; clamp(); apply();
+    };
+    // リセット
+    scale=1; tx=0; ty=0; apply();
+
+    // ＋ − ⟳ ボタン
+    document.querySelectorAll('#mapZoomCtl button').forEach(btn=>{
+      btn.onclick = (e)=>{
+        e.stopPropagation();
+        const r=box.getBoundingClientRect(), cx=r.width/2, cy=r.height/2;
+        if(btn.dataset.z==='in')  zoomAt(cx,cy,1.5);
+        if(btn.dataset.z==='out') zoomAt(cx,cy,1/1.5);
+        if(btn.dataset.z==='reset'){ scale=1; tx=0; ty=0; apply(); }
+      };
+    });
+
+    // ピンチ＆ドラッグ
+    const pts=new Map();
+    let dragged=false, startDist=0, startScale=1, midX=0, midY=0;
+    const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+    box.onpointerdown = (e)=>{
+      box.setPointerCapture(e.pointerId);
+      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      dragged=false;
+      if(pts.size===2){ const v=[...pts.values()]; startDist=dist(v[0],v[1]); startScale=scale;
+        const r=box.getBoundingClientRect(); midX=(v[0].x+v[1].x)/2-r.left; midY=(v[0].y+v[1].y)/2-r.top; }
+    };
+    box.onpointermove = (e)=>{
+      if(!pts.has(e.pointerId)) return;
+      const prev=pts.get(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size>=2){
+        const v=[...pts.values()]; const d=dist(v[0],v[1]);
+        if(startDist>0){ const ns=Math.max(MIN,Math.min(MAX, startScale*(d/startDist)));
+          const k=ns/scale; tx=midX-(midX-tx)*k; ty=midY-(midY-ty)*k; scale=ns; clamp(); apply(); dragged=true; }
+      } else {
+        const dx=e.clientX-prev.x, dy=e.clientY-prev.y;
+        if(Math.abs(dx)+Math.abs(dy)>2){ dragged=true; if(scale>1){ tx+=dx; ty+=dy; clamp(); apply(); } }
+      }
+    };
+    const up = (e)=>{ pts.delete(e.pointerId); if(pts.size<2) startDist=0; };
+    box.onpointerup = up; box.onpointercancel = up;
+    // ドラッグ／ピンチのあとのクリックは県の選択にしない
+    box.addEventListener('click', (e)=>{ if(dragged){ e.stopPropagation(); e.preventDefault(); dragged=false; } }, true);
   }
 
   function showMapTarget(){
