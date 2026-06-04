@@ -617,7 +617,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.3</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.4</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -2132,12 +2132,11 @@
       `<div class="clue">${i+1}つ目： ${c.q} ＝ <b>？</b></div>`).join('');
     // キーパッド（消すボタンつき）
     const keypad = document.getElementById('keypad');
-    const keysArr = ['7','8','9','4','5','6','1','2','3','C','0','DEL','OPEN'];
+    const keysArr = ['7','8','9','4','5','6','1','2','3','OPEN','0','DEL'];
     keypad.innerHTML = keysArr.map(k=>{
       let cls='key', label=k;
       if(k==='OPEN'){ cls+=' open'; label='🔓 OPEN'; }
       else if(k==='DEL'){ cls+=' del'; label='⌫ けす'; }
-      else if(k==='C'){ cls+=' del'; label='C'; }
       return `<button class="${cls}" data-k="${k}">${label}</button>`;
     }).join('');
     keypad.querySelectorAll('.key').forEach(b=> b.onclick = ()=>codeKey(b.dataset.k));
