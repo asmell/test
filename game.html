@@ -135,8 +135,9 @@
   @keyframes hintpulse{ 0%,100%{ box-shadow:0 5px 0 #d9a800; } 50%{ box-shadow:0 5px 0 #d9a800,0 0 16px 4px rgba(255,217,61,.8); } }
   #hintToast{
     position:absolute; left:50%; bottom:160px; transform:translateX(-50%); z-index:41;
-    background:#3a2e4a; color:#fff; font-weight:900; font-size:17px; white-space:nowrap;
-    padding:10px 18px; border-radius:14px; box-shadow:0 6px 14px rgba(0,0,0,.3);
+    background:#3a2e4a; color:#fff; font-weight:900; font-size:16px; line-height:1.4;
+    width:86%; max-width:340px; text-align:center;
+    padding:10px 16px; border-radius:14px; box-shadow:0 6px 14px rgba(0,0,0,.3);
   }
   .hintglow{ outline:4px solid #ffd93d !important; border-radius:10px;
     animation:hintblink .6s steps(2) 4; }
@@ -616,7 +617,7 @@
       <div id="qrcode" style="background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);"></div>
       <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;">スマホで読み取ってプレイ！</div>
     </div>
-    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.2</div>
+    <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:rgba(255,255,255,.6);font-weight:700;">v3.9.3</div>
   </div>
 
   <!-- ===== キャラえらび ===== -->
@@ -1674,14 +1675,18 @@
       let any=false;
       words.forEach(w=>{ if(!w.dead && w.type==='element'){ w.el.classList.add('hintglow'); any=true; setTimeout(()=>w.el.classList.remove('hintglow'),2200); } });
       toast(any ? '光ってるのが単体だよ！' : '単体（1種類の原子）をさがそう！');
-    } else if(state==='spell'){          // ② スペル：今の進みに合わせて次の文字
-      const i = Math.min(spellInput.length, spellWord.en.length-1);
-      const ord = ['1ばんめ','2ばんめ','3ばんめ','4ばんめ','5ばんめ','6ばんめ','7ばんめ','8ばんめ'][i] || (i+1)+'ばんめ';
-      toast(ord+'の文字は「'+spellWord.en[i]+'」');
-    } else if(state==='map'){            // ③ 都道府県：今のお題の県を光らせる
-      const g=[...document.querySelectorAll('#mapBox .prefecture')].find(x=>x.dataset.jp===mapQueue[mapDoneN]);
-      if(g){ g.classList.add('hintpref'); setTimeout(()=>g.classList.remove('hintpref'),3000); }
-      toast('光ってる「'+mapQueue[mapDoneN]+'」をタップ！');
+    } else if(state==='spell'){          // ② スペル：次の正しい文字を実際にマスへ入れる
+      if(spellInput.length < spellWord.en.length){
+        const c = spellWord.en[spellInput.length];
+        const tile = [...document.querySelectorAll('#spellTiles .tile')].find(t=>!t.classList.contains('used') && t.dataset.c===c);
+        if(tile){ tile.click(); toast('つぎの1文字を入れたよ！（読み方もたしかめてね）'); }
+        else toast('つぎの文字は「'+c+'」');
+      } else {
+        toast('そろったら じどうで チェックされるよ');
+      }
+    } else if(state==='map'){            // ③ 都道府県：場所ではなく特徴のクイズ風ヒント
+      const name = mapQueue[mapDoneN];
+      toast('💡 '+(PREF_HINTS[name] || (name+' をさがそう')));
     } else if(state==='lock'){           // ④ 金庫：今入力中の次のけた
       const i = Math.min(codeInput.length, codeAns.length-1);
       const ord = ['1','2','3','4','5'][i] || (i+1);
@@ -2020,6 +2025,30 @@
   const PREF_POOL = ['北海道','青森','岩手','宮城','福島','新潟','長野','茨城',
                      '東京','静岡','愛知','岐阜','大阪','兵庫','広島','島根',
                      '高知','福岡','熊本','鹿児島','沖縄'];
+  // ③のヒント：その県の特徴（地方・名物・地理）
+  const PREF_HINTS = {
+    '北海道':'日本でいちばん北で、いちばん広い。さっぽろ雪まつり',
+    '青森':'本州のいちばん北。りんごの生産が日本一・ねぶた祭り',
+    '岩手':'本州でいちばん広い。わんこそば・中尊寺',
+    '宮城':'東北地方の中心。牛タン・仙台市',
+    '福島':'東北地方でいちばん南。ももの産地',
+    '新潟':'日本海がわ。お米（コシヒカリ）が有名',
+    '長野':'海がない内陸の県。そば・りんご、冬季五輪',
+    '茨城':'関東地方。納豆で有名',
+    '東京':'日本の首都',
+    '静岡':'富士山・お茶・うなぎ。太平洋がわ',
+    '愛知':'名古屋市。自動車工業（トヨタ）がさかん',
+    '岐阜':'海がない内陸。世界遺産の白川郷',
+    '大阪':'西日本の中心。たこ焼き・お笑い',
+    '兵庫':'神戸市・甲子園球場',
+    '広島':'もみじまんじゅう・平和記念公園（原爆ドーム）',
+    '島根':'出雲大社で有名。日本海がわ',
+    '高知':'四国地方。かつおのたたき・坂本龍馬',
+    '福岡':'九州地方の中心。とんこつラーメン・明太子',
+    '熊本':'ゆるキャラのくまモン・阿蘇山',
+    '鹿児島':'九州でいちばん南。桜島・さつまいも',
+    '沖縄':'日本でいちばん南。あたたかくてシーサーが有名',
+  };
   const MAP_TARGET = 8;
   let mapQueue=[], mapDoneN=0;
 
